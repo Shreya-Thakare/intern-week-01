@@ -1,0 +1,12 @@
+**/node_modules
+**/.next
+**/__pycache__
+**/*.pyc
+**/.git
+day-07/nextjs-app
+day-07/node-api/node_modules
+day-06/react-app/node_modules
+day-09/angular-app/node_modules
+day-10/final-project/angular-module/node_modules
+day-04/models
+*.joblib
