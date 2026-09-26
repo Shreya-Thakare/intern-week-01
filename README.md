@@ -39,6 +39,9 @@ INTERN-WEEK/
 - Day 10 includes ML model training, FastAPI (or simple API), dark dashboard with prediction visualization, and an Angular module.
 - Prefer Python 3.10+, Node 18+.
 
+## Visuals
+https://vercel.com/shreya-a5e8/intern-week-01-zhfa
+
 ## Final presentation
 
 See `day-10/final-project/presentation-outline.md`.
