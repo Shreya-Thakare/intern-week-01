@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>10-Day Intern Training · Portfolio</title>
+  <style>
+    :root {
+      font-family: "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+      --bg: #060a12;
+      --surface: #0e1524;
+      --card: #121a2b;
+      --border: #1e2a3d;
+      --border-hover: #3b82f6;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --dim: #64748b;
+      --accent: #3b82f6;
+      --accent-dim: rgba(59, 130, 246, 0.12);
+      --green: #22c55e;
+      --amber: #f59e0b;
+      --purple: #a78bfa;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse 80% 50% at 10% -20%, rgba(59,130,246,.15), transparent 50%),
+        radial-gradient(ellipse 60% 40% at 90% 0%, rgba(167,139,250,.08), transparent 45%),
+        var(--bg);
+      line-height: 1.5;
+    }
+    .shell {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 3.5rem;
+    }
+    header {
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    header .eyebrow {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: .5rem;
+    }
+    header h1 {
+      font-size: clamp(1.5rem, 4vw, 1.85rem);
+      font-weight: 700;
+      letter-spacing: -.03em;
+      margin-bottom: .4rem;
+    }
+    header p {
+      color: var(--muted);
+      font-size: .95rem;
+      max-width: 36rem;
+    }
+    .repo-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin-top: 1.1rem;
+    }
+    .repo-row a {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      text-decoration: none;
+      font-size: .8rem;
+      font-weight: 600;
+      padding: .4rem .85rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: var(--surface);
+      transition: border-color .15s, color .15s, background .15s;
+    }
+    .repo-row a:hover {
+      border-color: var(--accent);
+      color: #93c5fd;
+      background: var(--accent-dim);
+    }
+    .section {
+      margin-bottom: 1.75rem;
+    }
+    .section-title {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: .75rem;
+      padding-left: .15rem;
+    }
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: .6rem;
+    }
+    .day {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: .75rem 1rem;
+      align-items: center;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.15rem;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .day:hover {
+      border-color: rgba(59, 130, 246, 0.45);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+    }
+    .day-info { min-width: 0; }
+    .day-info .label {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: .4rem .65rem;
+      margin-bottom: .2rem;
+    }
+    .day-info strong {
+      font-size: .98rem;
+      font-weight: 650;
+      letter-spacing: -.01em;
+    }
+    .pill {
+      font-size: .65rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      padding: .12rem .4rem;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+    .pill.py { color: #86efac; background: rgba(34,197,94,.12); }
+    .pill.web { color: #fcd34d; background: rgba(245,158,11,.12); }
+    .pill.node { color: #a5b4fc; background: rgba(99,102,241,.12); }
+    .pill.sql { color: #c4b5fd; background: rgba(139,92,246,.12); }
+    .pill.final { color: #fbbf24; background: rgba(245,158,11,.15); }
+    .day-info .desc {
+      font-size: .84rem;
+      color: var(--muted);
+    }
+    .day-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+      justify-content: flex-end;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-size: .75rem;
+      font-weight: 650;
+      padding: .45rem .85rem;
+      border-radius: 8px;
+      white-space: nowrap;
+      transition: background .12s, border-color .12s, filter .12s;
+    }
+    .btn-primary {
+      color: #fff;
+      background: var(--accent);
+      border: 1px solid transparent;
+    }
+    .btn-primary:hover { background: #2563eb; filter: brightness(1.05); }
+    .btn-ghost {
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover {
+      color: var(--text);
+      border-color: #475569;
+      background: rgba(148,163,184,.08);
+    }
+    .day.featured {
+      background: linear-gradient(145deg, #16120a 0%, #12100c 100%);
+      border-color: rgba(245, 158, 11, 0.4);
+      box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.06), 0 8px 32px rgba(245, 158, 11, 0.08);
+    }
+    .day.featured:hover {
+      border-color: rgba(245, 158, 11, 0.65);
+    }
+    .day.featured .badge {
+      display: inline-block;
+      font-size: .62rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #fbbf24;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      padding: .15rem .5rem;
+      border-radius: 999px;
+      margin-bottom: .35rem;
+    }
+    .day.featured strong { color: #fde68a; }
+    .day.featured .btn-primary {
+      background: #d97706;
+    }
+    .day.featured .btn-primary:hover { background: #b45309; }
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: .78rem;
+      color: var(--dim);
+    }
+    footer a { color: #93c5fd; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    @media (max-width: 640px) {
+      .day {
+        grid-template-columns: 1fr;
+      }
+      .day-actions {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="eyebrow">Technical training portfolio</div>
+      <h1>10-Day Intern Training</h1>
+      <p>Each day opens its visual dashboard (<code>index.html</code>). Source code is available on GitHub.</p>
+      <div class="repo-row">
+        <a href="https://github.com/Shreya-Thakare/intern-week-1" target="_blank" rel="noopener">GitHub repository</a>
+        <a href="https://github.com/Shreya-Thakare/intern-week-1/tree/main" target="_blank" rel="noopener">Browse all files</a>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="section-title">Days 1–4 · Python foundations</div>
+      <div class="list">
+        <article class="day">
+          <div class="day-info">
+            <div class="label">
+              <strong>Day 1 · Programming Fundamentals</strong>
+              <span class="pill py">Python</span>
+            </div>
+            <p class="desc">DSA exercises and Employee Management CLI</p>
+          </div>
+          <div class="day-actions">
+            <a class="btn btn-primary" href="day-01/index.html">Open dashboard</a>
+            <a class="btn btn-ghost" href="https://github.com/Shreya-Thakare/intern-week-1/tree/main/day-01" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </article>
+        <article class="day">
+          <div class="day-info">
+            <div class="label">
+              <strong>Day 2 · Python Development</strong>
+              <span class="pill py">Python · OOP</span>
+            </div>
+            <p class="desc">Student system, CSV analysis, live sample data</p>
+          </div>
+          <div class="day-actions">
+            <a class="btn btn-primary" href="day-02/index.html">Open dashboard</a>
+            <a class="btn btn-ghost" href="https://github.com/Shreya-Thakare/intern-week-1/tree/main/day-02" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </article>
+        <article class="day">
+          <div class="day-info">
+            <div class="label">
+              <strong>Day 3 · Data Analysis</strong>
+              <span class="pill py">NumPy · Pandas</span>
+            </div>
+            <p class="desc">Cleaning, analysis, and chart visualizations</p>
+          </div>
+          <div class="day-actions">
+            <a class="btn btn-primary" href="day-03/index.html">Open dashboard</a>
+            <a class="btn btn-ghost" href="https://github.com/Shreya-Thakare/intern-week-1/tree/main/day-03" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </article>
+        <article class="day">
+          <div class="day-info">
+            <div class="label">
+              <strong>Day 4 · ML Prediction</strong>
+              <span class="pill py">scikit-learn</span>
+            </div>
+            <p class="desc">Model metrics, predictions table, risk charts</p>
+          </div>
+          <div class="day-actions">
+            <a class="btn btn-primary" href="day-04/index.html">Open dashboard</a>
+            <a class="btn btn-ghost" href="https://github.com/Shreya-Thakare/intern-week-1/tree/main/day-04" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">Days 5–9 · Web &amp; dashboards</div>
+      <div class="list">
+        <article class="day">
+          <div class="day-info">
+            <div class="label">
+              <strong>Day 5 · Employee Dashboard</strong>
+              <span class="pill web">HTML · JS</span>
+            </div>
+            <p class="desc">Search, filter, sort, and CRUD in the browser</p>
+          </div>
+          <div class="day-actions">
+            <a class="btn btn-primary" href="day-05/index.html">Open dashboard</a>
+            <a class="btn btn-ghost" href="https://github.com/Shreya-Thakare/intern-week-1/tree/main/day-05" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </article>
+        <article class="day">
+          <div class="day-info">
+            <div class="label">
+              <strong>Day 6 · Employee Analytics</strong>
+              <span class="pill web">Visualization</span>
+            </div>
+            <p class="desc">Salary by department, headcount charts</p>
+          </div>
+          <div class="day-actions">
+            <a class="btn btn-primary" href="day-06/index.html">Open dashboard</a>
+            <a class="btn btn-ghost" href="https://github.com/Shreya-Thakare/intern-week-1/tree/main/day-06" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </article>
+        <article class="day">
+          <div class="day-info">
+            <div class="label">
+              <strong>Day 7 · API Dataset Viz</strong>
+              <span class="pill node">HTML · Node</span>
+            </div>
+            <p class="desc">Employee charts with offline seed data</p>
+          </div>
+          <div class="day-actions">
+            <a class="btn btn-primary" href="day-07/index.html">Open dashboard</a>
+            <a class="btn btn-ghost" href="https://github.com/Shreya-Thakare/intern-week-1/tree/main/day-07" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </article>
+        <article class="day">
+          <div class="day-info">
+            <div class="label">
+              <strong>Day 8 · SQL + Laravel</strong>
+              <span class="pill sql">SQL · Laravel</span>
+            </div>
+            <p class="desc">Schema, queries, and SQLite demo overview</p>
+          </div>
+          <div class="day-actions">
+            <a class="btn btn-primary" href="day-08/index.html">Open dashboard</a>
+            <a class="btn btn-ghost" href="https://github.com/Shreya-Thakare/intern-week-1/tree/main/day-08" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </article>
+        <article class="day">
+          <div class="day-info">
+            <div class="label">
+              <strong>Day 9 · Facility Inspection</strong>
+              <span class="pill web">Dashboard</span>
+            </div>
+            <p class="desc">Metrics, forms, history, and alerts</p>
+          </div>
+          <div class="day-actions">
+            <a class="btn btn-primary" href="day-09/index.html">Open dashboard</a>
+            <a class="btn btn-ghost" href="https://github.com/Shreya-Thakare/intern-week-1/tree/main/day-09" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">Day 10 · Final project</div>
+      <div class="list">
+        <article class="day featured">
+          <div class="day-info">
+            <div class="badge">Final project</div>
+            <div class="label">
+              <strong>Day 10 · Hygiene Command Center</strong>
+              <span class="pill final">Full stack</span>
+            </div>
+            <p class="desc">ML prediction, complaints, activity feed, dark command center</p>
+          </div>
+          <div class="day-actions">
+            <a class="btn btn-primary" href="day-10/index.html">Open dashboard</a>
+            <a class="btn btn-ghost" href="https://github.com/Shreya-Thakare/intern-week-1/tree/main/day-10" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <footer>
+      <a href="https://github.com/Shreya-Thakare/intern-week-1" target="_blank" rel="noopener">github.com/Shreya-Thakare/intern-week-1</a>
+      · Each “Open dashboard” opens that day’s <code>index.html</code> visual
+    </footer>
+  </div>
+</body>
+</html>
