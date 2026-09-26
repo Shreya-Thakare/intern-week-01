@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Day 7 · Employee Dataset Visualization</title>
+  <style>
+    :root { font-family: Inter, system-ui, sans-serif; color: #e8eef8; background: #0b0f17; }
+    body { margin: 0; background: radial-gradient(ellipse 70% 40% at 10% -10%, rgba(59,130,246,.12), transparent), #0b0f17; }
+    .shell { max-width: 1000px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+    h1 { margin: 0 0 .25rem; font-size: 1.4rem; }
+    .sub { color: #8b9bb4; margin: 0 0 1.25rem; font-size: .9rem; }
+    .metrics { display: grid; grid-template-columns: repeat(4,1fr); gap: .75rem; margin-bottom: 1rem; }
+    .metric { background: #161f2e; border: 1px solid #243044; border-radius: 12px; padding: 1rem; }
+    .metric span { display: block; color: #8b9bb4; font-size: .78rem; }
+    .metric b { font-size: 1.4rem; }
+    .panel { background: #161f2e; border: 1px solid #243044; border-radius: 12px; padding: 1.15rem; margin-bottom: 1rem; }
+    .panel h2 { margin: 0 0 1rem; font-size: 1rem; }
+    .bar-row { display: grid; grid-template-columns: 110px 1fr 70px; gap: .5rem; align-items: center; margin-bottom: .5rem; }
+    .bar-row span { font-size: .8rem; color: #8b9bb4; }
+    .bar-row .n { text-align: right; color: #e8eef8; font-weight: 600; }
+    .track { height: 10px; background: #0d1420; border-radius: 999px; border: 1px solid #243044; overflow: hidden; }
+    .fill { height: 100%; background: linear-gradient(90deg,#3b82f6,#8b5cf6); border-radius: 999px; width: 0; transition: width .6s ease; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: .55rem .4rem; border-bottom: 1px solid #1c2738; font-size: .9rem; }
+    th { color: #5c6b84; font-size: .72rem; text-transform: uppercase; }
+    .hint { color: #5c6b84; font-size: .8rem; margin-top: .75rem; }
+    @media (max-width: 700px) { .metrics { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <h1>Day 7 · Employee dataset visualization</h1>
+    <p class="sub">Loads from Node API if running, otherwise uses built-in seed data.</p>
+    <section class="metrics" id="metrics"></section>
+    <section class="panel">
+      <h2>Average salary by department</h2>
+      <div id="deptBars"></div>
+    </section>
+    <section class="panel">
+      <h2>Salary bands</h2>
+      <div id="bandBars"></div>
+    </section>
+    <section class="panel">
+      <h2>Roster</h2>
+      <table>
+        <thead><tr><th>Name</th><th>Department</th><th>Position</th><th>Salary</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <p class="hint" id="source"></p>
+    </section>
+  </div>
+  <script>
+    const SEED = [
+      { id:1,name:'Asha Patil',department:'Engineering',position:'Developer',salary:65000 },
+      { id:2,name:'Ravi Shah',department:'HR',position:'Executive',salary:48000 },
+      { id:3,name:'Neha Joshi',department:'Engineering',position:'QA Engineer',salary:58000 },
+      { id:4,name:'Karan Mehta',department:'Finance',position:'Analyst',salary:52000 },
+      { id:5,name:'Priya Deshmukh',department:'Operations',position:'Coordinator',salary:45000 },
+      { id:6,name:'Amit Kulkarni',department:'Engineering',position:'Tech Lead',salary:92000 },
+      { id:7,name:'Sneha Rao',department:'Finance',position:'Manager',salary:78000 },
+      { id:8,name:'Vikram Singh',department:'Sales',position:'Executive',salary:42000 },
+      { id:9,name:'Ananya Iyer',department:'Engineering',position:'Intern',salary:28000 },
+      { id:10,name:'Rohit Nair',department:'Sales',position:'Manager',salary:70000 },
+      { id:11,name:'Meera Kapoor',department:'HR',position:'Manager',salary:72000 },
+      { id:12,name:'Arjun Verma',department:'Operations',position:'Supervisor',salary:55000 },
+    ];
+    const money = n => '₹' + Math.round(n).toLocaleString('en-IN');
+
+    async function load() {
+      try {
+        const res = await fetch('http://localhost:4000/api/employees');
+        if (!res.ok) throw new Error('api');
+        const data = await res.json();
+        document.getElementById('source').textContent = 'Source: live Node API (port 4000)';
+        return data;
+      } catch {
+        document.getElementById('source').textContent = 'Source: built-in seed dataset (start node-api for live data)';
+        return SEED;
+      }
+    }
+
+    function render(employees) {
+      const total = employees.length;
+      const avg = total ? employees.reduce((s,e)=>s+e.salary,0)/total : 0;
+      const top = total ? employees.reduce((a,b)=>a.salary>=b.salary?a:b) : null;
+      const depts = new Set(employees.map(e=>e.department)).size;
+      document.getElementById('metrics').innerHTML = `
+        <div class="metric"><span>Total</span><b>${total}</b></div>
+        <div class="metric"><span>Average salary</span><b>${money(avg)}</b></div>
+        <div class="metric"><span>Departments</span><b>${depts}</b></div>
+        <div class="metric"><span>Highest</span><b>${top?money(top.salary):'—'}</b></div>`;
+
+      const map = {};
+      employees.forEach(e => {
+        if (!map[e.department]) map[e.department] = { n:0, s:0 };
+        map[e.department].n++; map[e.department].s += e.salary;
+      });
+      const deptStats = Object.entries(map).map(([name,v])=>({name, avg:v.s/v.n})).sort((a,b)=>b.avg-a.avg);
+      const maxAvg = Math.max(...deptStats.map(d=>d.avg),1);
+      document.getElementById('deptBars').innerHTML = deptStats.map(d => `
+        <div class="bar-row"><span>${d.name}</span><div class="track"><div class="fill" data-w="${Math.round(d.avg/maxAvg*100)}%"></div></div><span class="n">${money(d.avg)}</span></div>`).join('');
+
+      const bands = [
+        {name:'< ₹40k',min:0,max:40000,c:0},{name:'₹40–60k',min:40000,max:60000,c:0},
+        {name:'₹60–80k',min:60000,max:80000,c:0},{name:'≥ ₹80k',min:80000,max:1e12,c:0}
+      ];
+      employees.forEach(e => { const b = bands.find(x=>e.salary>=x.min && e.salary<x.max); if(b)b.c++; });
+      const maxB = Math.max(...bands.map(b=>b.c),1);
+      document.getElementById('bandBars').innerHTML = bands.map(b => `
+        <div class="bar-row"><span>${b.name}</span><div class="track"><div class="fill" data-w="${Math.round(b.c/maxB*100)}%" style="background:linear-gradient(90deg,#22c55e,#3b82f6)"></div></div><span class="n">${b.c}</span></div>`).join('');
+
+      document.getElementById('rows').innerHTML = employees.map(e =>
+        `<tr><td>${e.name}</td><td>${e.department}</td><td>${e.position||''}</td><td>${money(e.salary)}</td></tr>`).join('');
+
+      requestAnimationFrame(() => {
+        document.querySelectorAll('.fill').forEach(el => { el.style.width = el.dataset.w; });
+      });
+    }
+
+    load().then(render);
+  </script>
+</body>
+</html>

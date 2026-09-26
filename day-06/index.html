@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Day 6 · Employee Dashboard</title>
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --card: #161f2e;
+      --elevated: #121826;
+      --input: #0d1420;
+      --border: #243044;
+      --border-soft: #1c2738;
+      --text: #e8eef8;
+      --muted: #8b9bb4;
+      --dim: #5c6b84;
+      --accent: #3b82f6;
+      --accent-soft: rgba(59,130,246,.15);
+      --green: #22c55e;
+      --green-soft: rgba(34,197,94,.15);
+      --red: #ef4444;
+      --red-soft: rgba(239,68,68,.15);
+      --amber: #f59e0b;
+      --purple: #a78bfa;
+      --radius: 14px;
+      font-family: "Segoe UI", Inter, system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; color: var(--text);
+      background:
+        radial-gradient(ellipse 80% 50% at 15% -10%, rgba(59,130,246,.12), transparent),
+        radial-gradient(ellipse 50% 40% at 95% 5%, rgba(167,139,250,.08), transparent),
+        var(--bg);
+    }
+    .shell { max-width: 1280px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;
+    }
+    .brand { display: flex; align-items: center; gap: .9rem; }
+    .brand-mark {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      display: grid; place-items: center; font-weight: 800;
+      box-shadow: 0 0 24px rgba(59,130,246,.35);
+    }
+    .brand small {
+      display: block; color: var(--dim); font-size: .72rem;
+      letter-spacing: .12em; text-transform: uppercase; font-weight: 600;
+    }
+    .brand h1 { margin: .1rem 0 0; font-size: 1.35rem; font-weight: 700; letter-spacing: -.02em; }
+    .actions-top { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+    .btn {
+      border: 0; border-radius: 10px; padding: .55rem .9rem;
+      font-weight: 650; font-size: .88rem; cursor: pointer; font-family: inherit;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb, #4f46e5); color: #fff;
+      box-shadow: 0 4px 16px rgba(37,99,235,.35);
+    }
+    .btn-ghost {
+      background: var(--card); color: var(--text); border: 1px solid var(--border);
+    }
+    .btn-danger { background: var(--red-soft); color: #fca5a5; border: 1px solid rgba(239,68,68,.35); }
+    .btn-sm { padding: .35rem .6rem; font-size: .78rem; }
+    .btn:hover { filter: brightness(1.08); }
+
+    .metrics {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
+      margin-bottom: 1.15rem;
+    }
+    .metric {
+      background: var(--card); border: 1px solid var(--border-soft);
+      border-radius: var(--radius); padding: 1.1rem 1.2rem; position: relative; overflow: hidden;
+    }
+    .metric::after {
+      content: ""; position: absolute; right: -20%; bottom: -40%;
+      width: 90px; height: 90px; border-radius: 50%; background: var(--accent-soft);
+    }
+    .metric:nth-child(2)::after { background: var(--green-soft); }
+    .metric:nth-child(3)::after { background: rgba(167,139,250,.12); }
+    .metric:nth-child(4)::after { background: rgba(245,158,11,.12); }
+    .metric label { display: block; color: var(--muted); font-size: .8rem; margin-bottom: .3rem; }
+    .metric .value { font-size: 1.65rem; font-weight: 700; letter-spacing: -.03em; }
+    .metric .sub { color: var(--dim); font-size: .75rem; margin-top: .2rem; }
+
+    .grid-main {
+      display: grid; grid-template-columns: 1.25fr .95fr; gap: 1.15rem;
+      margin-bottom: 1.15rem;
+    }
+    .panel {
+      background: var(--card); border: 1px solid var(--border-soft);
+      border-radius: var(--radius); padding: 1.2rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,.3);
+    }
+    .panel-head {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: .75rem; flex-wrap: wrap; margin-bottom: 1rem;
+    }
+    .panel-head h2 { margin: 0; font-size: 1rem; font-weight: 650; }
+    .tag {
+      font-size: .7rem; font-weight: 600; color: var(--dim);
+      text-transform: uppercase; letter-spacing: .06em;
+    }
+
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .85rem;
+    }
+    .toolbar input, .toolbar select, .field input, .field select {
+      background: var(--input); border: 1px solid var(--border); color: var(--text);
+      border-radius: 10px; padding: .55rem .7rem; font: inherit; outline: none;
+    }
+    .toolbar input { flex: 1; min-width: 180px; }
+    .toolbar input:focus, .field input:focus, .field select:focus {
+      border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left; color: var(--dim); font-size: .72rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .06em;
+      padding: .5rem; border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: .7rem .5rem; border-bottom: 1px solid var(--border-soft);
+      font-size: .9rem; vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: 0; }
+    tr:hover td { background: rgba(255,255,255,.02); }
+    .row-actions { display: flex; gap: .35rem; flex-wrap: wrap; }
+
+    /* Charts */
+    .chart-block { margin-bottom: 1.25rem; }
+    .chart-block h3 {
+      margin: 0 0 .75rem; font-size: .75rem; font-weight: 650;
+      color: var(--dim); text-transform: uppercase; letter-spacing: .07em;
+    }
+    .bar-chart { display: grid; gap: .55rem; }
+    .bar-row {
+      display: grid; grid-template-columns: 100px 1fr 70px; gap: .5rem; align-items: center;
+    }
+    .bar-row .label { font-size: .78rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar-row .num { text-align: right; font-size: .78rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .bar-track {
+      height: 10px; border-radius: 999px; background: var(--input);
+      border: 1px solid var(--border-soft); overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%; border-radius: 999px; width: 0;
+      transition: width .6s ease;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    }
+
+    .donut-wrap {
+      display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap;
+    }
+    .donut {
+      position: relative; width: 140px; height: 140px; flex-shrink: 0;
+    }
+    .donut svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .donut-center {
+      position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
+    }
+    .donut-center strong { font-size: 1.25rem; display: block; line-height: 1.1; }
+    .donut-center span { font-size: .65rem; color: var(--dim); text-transform: uppercase; letter-spacing: .06em; }
+    .legend { display: grid; gap: .4rem; }
+    .legend-item {
+      display: flex; align-items: center; gap: .45rem; font-size: .8rem; color: var(--muted);
+    }
+    .swatch { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+    .salary-scale {
+      display: flex; justify-content: space-between; gap: .5rem;
+      margin-top: .5rem; font-size: .72rem; color: var(--dim);
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed; inset: 0; background: rgba(5,8,15,.72);
+      display: none; place-items: center; padding: 1rem; z-index: 50;
+      backdrop-filter: blur(4px);
+    }
+    .modal.open { display: grid; }
+    .dialog {
+      width: min(420px, 100%); background: var(--card);
+      border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem;
+      box-shadow: 0 20px 50px rgba(0,0,0,.5);
+    }
+    .dialog h2 { margin: 0 0 1rem; font-size: 1.1rem; }
+    .field { display: grid; gap: .3rem; margin-bottom: .75rem; font-size: .8rem; color: var(--muted); }
+    .dialog-actions { display: flex; gap: .5rem; justify-content: flex-end; margin-top: .5rem; }
+    .error { color: #fca5a5; font-size: .85rem; margin: 0 0 .5rem; }
+
+    .details-grid {
+      display: grid; gap: .65rem; margin: 1rem 0;
+    }
+    .details-grid div {
+      display: flex; justify-content: space-between; gap: 1rem;
+      padding: .55rem .7rem; background: var(--elevated);
+      border-radius: 8px; border: 1px solid var(--border-soft); font-size: .9rem;
+    }
+    .details-grid span { color: var(--muted); }
+
+    footer {
+      margin-top: 2rem; text-align: center; color: var(--dim); font-size: .75rem;
+    }
+
+    @media (max-width: 960px) {
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .grid-main { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) {
+      .metrics { grid-template-columns: 1fr; }
+      .bar-row { grid-template-columns: 80px 1fr 56px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">E</div>
+        <div>
+          <small>Day 6 · TypeScript + React concepts</small>
+          <h1>Employee Management Dashboard</h1>
+        </div>
+      </div>
+      <div class="actions-top">
+        <button class="btn btn-ghost" type="button" id="resetBtn">Reset data</button>
+        <button class="btn btn-primary" type="button" id="addBtn">+ Add employee</button>
+      </div>
+    </header>
+
+    <section class="metrics">
+      <div class="metric">
+        <label>Total employees</label>
+        <div class="value" id="mTotal">0</div>
+        <div class="sub">In roster</div>
+      </div>
+      <div class="metric">
+        <label>Average salary</label>
+        <div class="value" id="mAvg">₹0</div>
+        <div class="sub">Across all staff</div>
+      </div>
+      <div class="metric">
+        <label>Departments</label>
+        <div class="value" id="mDepts">0</div>
+        <div class="sub">Unique teams</div>
+      </div>
+      <div class="metric">
+        <label>Highest salary</label>
+        <div class="value" id="mMax">₹0</div>
+        <div class="sub" id="mMaxName">—</div>
+      </div>
+    </section>
+
+    <div class="grid-main">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Employee roster</h2>
+          <span class="tag" id="visibleCount">0 shown</span>
+        </div>
+        <div class="toolbar">
+          <input id="searchInput" type="search" placeholder="Search name, email, dept, position…" />
+          <select id="deptFilter">
+            <option value="">All departments</option>
+          </select>
+          <select id="sortKey">
+            <option value="name">Sort: Name</option>
+            <option value="department">Sort: Department</option>
+            <option value="salary">Sort: Salary</option>
+            <option value="id">Sort: ID</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" type="button" id="sortDirBtn">↑ Asc</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Position</th>
+                <th>Salary</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="employeeRows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Analytics visualization</h2>
+          <span class="tag">Live from data</span>
+        </div>
+
+        <div class="chart-block">
+          <h3>Average salary by department</h3>
+          <div class="bar-chart" id="deptBars"></div>
+          <div class="salary-scale">
+            <span>₹0</span>
+            <span id="scaleMax">max</span>
+          </div>
+        </div>
+
+        <div class="chart-block">
+          <h3>Headcount distribution</h3>
+          <div class="donut-wrap">
+            <div class="donut">
+              <svg viewBox="0 0 120 120" id="donutSvg" aria-hidden="true"></svg>
+              <div class="donut-center">
+                <div>
+                  <strong id="donutTotal">0</strong>
+                  <span>people</span>
+                </div>
+              </div>
+            </div>
+            <div class="legend" id="donutLegend"></div>
+          </div>
+        </div>
+
+        <div class="chart-block" style="margin-bottom:0">
+          <h3>Salary band split</h3>
+          <div class="bar-chart" id="bandBars"></div>
+        </div>
+      </section>
+    </div>
+
+    <footer>Day 6 · Employee Management · Metrics computed from live roster data</footer>
+  </div>
+
+  <!-- Add / Edit modal -->
+  <div class="modal" id="formModal" role="dialog" aria-modal="true">
+    <form class="dialog" id="employeeForm">
+      <h2 id="formTitle">Add employee</h2>
+      <input type="hidden" id="empId" />
+      <label class="field">Name <input id="fName" required /></label>
+      <label class="field">Email <input id="fEmail" type="email" required /></label>
+      <label class="field">Department <input id="fDept" required list="deptList" /></label>
+      <datalist id="deptList"></datalist>
+      <label class="field">Position <input id="fPos" required /></label>
+      <label class="field">Salary (₹) <input id="fSalary" type="number" min="1" required /></label>
+      <p class="error" id="formError"></p>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-ghost" id="cancelForm">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Details modal -->
+  <div class="modal" id="detailsModal" role="dialog" aria-modal="true">
+    <div class="dialog">
+      <h2 id="detailsName">—</h2>
+      <div class="details-grid" id="detailsBody"></div>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-ghost" id="closeDetails">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'day06-employees-v2';
+    const COLORS = ['#3b82f6', '#22c55e', '#a78bfa', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899'];
+
+    const seed = [
+      { id: 1, name: 'Asha Patil', email: 'asha@example.com', department: 'Engineering', position: 'Developer', salary: 65000 },
+      { id: 2, name: 'Ravi Shah', email: 'ravi@example.com', department: 'HR', position: 'Executive', salary: 48000 },
+      { id: 3, name: 'Neha Joshi', email: 'neha@example.com', department: 'Engineering', position: 'QA Engineer', salary: 58000 },
+      { id: 4, name: 'Karan Mehta', email: 'karan@example.com', department: 'Finance', position: 'Analyst', salary: 52000 },
+      { id: 5, name: 'Priya Deshmukh', email: 'priya@example.com', department: 'Operations', position: 'Coordinator', salary: 45000 },
+      { id: 6, name: 'Amit Kulkarni', email: 'amit@example.com', department: 'Engineering', position: 'Tech Lead', salary: 92000 },
+      { id: 7, name: 'Sneha Rao', email: 'sneha@example.com', department: 'Finance', position: 'Manager', salary: 78000 },
+      { id: 8, name: 'Vikram Singh', email: 'vikram@example.com', department: 'Sales', position: 'Executive', salary: 42000 },
+    ];
+
+    let employees = load();
+    let query = '';
+    let deptFilter = '';
+    let sortKey = 'name';
+    let sortDir = 'asc';
+
+    function load() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length) return parsed;
+        }
+      } catch {}
+      return structuredClone(seed);
+    }
+
+    function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(employees));
+    }
+
+    function money(n) {
+      return '₹' + Math.round(n).toLocaleString('en-IN');
+    }
+
+    function departments() {
+      return [...new Set(employees.map(e => e.department))].sort();
+    }
+
+    function metrics() {
+      const total = employees.length;
+      const avg = total ? employees.reduce((s, e) => s + e.salary, 0) / total : 0;
+      const depts = departments().length;
+      const top = total ? employees.reduce((a, b) => (a.salary >= b.salary ? a : b)) : null;
+      return { total, avg, depts, top };
+    }
+
+    function visibleList() {
+      const q = query.trim().toLowerCase();
+      let list = employees.filter(e => {
+        const matchDept = !deptFilter || e.department === deptFilter;
+        const matchQ = !q ||
+          e.name.toLowerCase().includes(q) ||
+          e.email.toLowerCase().includes(q) ||
+          e.department.toLowerCase().includes(q) ||
+          e.position.toLowerCase().includes(q);
+        return matchDept && matchQ;
+      });
+      list = [...list].sort((a, b) => {
+        const av = a[sortKey], bv = b[sortKey];
+        if (av < bv) return sortDir === 'asc' ? -1 : 1;
+        if (av > bv) return sortDir === 'asc' ? 1 : -1;
+        return 0;
+      });
+      return list;
+    }
+
+    /** Accurate dept aggregates for charts */
+    function deptStats() {
+      const map = {};
+      employees.forEach(e => {
+        if (!map[e.department]) map[e.department] = { count: 0, totalSalary: 0 };
+        map[e.department].count += 1;
+        map[e.department].totalSalary += e.salary;
+      });
+      return Object.entries(map)
+        .map(([name, v]) => ({
+          name,
+          count: v.count,
+          avg: v.totalSalary / v.count,
+          total: v.totalSalary,
+        }))
+        .sort((a, b) => b.avg - a.avg);
+    }
+
+    function salaryBands() {
+      const bands = [
+        { name: '< ₹50k', min: 0, max: 50000, count: 0 },
+        { name: '₹50–70k', min: 50000, max: 70000, count: 0 },
+        { name: '₹70–90k', min: 70000, max: 90000, count: 0 },
+        { name: '≥ ₹90k', min: 90000, max: Infinity, count: 0 },
+      ];
+      employees.forEach(e => {
+        const b = bands.find(x => e.salary >= x.min && e.salary < x.max);
+        if (b) b.count += 1;
+      });
+      return bands;
+    }
+
+    function renderMetrics() {
+      const m = metrics();
+      document.getElementById('mTotal').textContent = m.total;
+      document.getElementById('mAvg').textContent = money(m.avg);
+      document.getElementById('mDepts').textContent = m.depts;
+      document.getElementById('mMax').textContent = m.top ? money(m.top.salary) : '₹0';
+      document.getElementById('mMaxName').textContent = m.top ? m.top.name : '—';
+    }
+
+    function renderFilters() {
+      const depts = departments();
+      const sel = document.getElementById('deptFilter');
+      const current = deptFilter;
+      sel.innerHTML = '<option value="">All departments</option>' +
+        depts.map(d => `<option value="${d}">${d}</option>`).join('');
+      sel.value = current;
+      document.getElementById('deptList').innerHTML =
+        depts.map(d => `<option value="${d}"></option>`).join('');
+    }
+
+    function renderTable() {
+      const list = visibleList();
+      document.getElementById('visibleCount').textContent = list.length + ' shown';
+      const tbody = document.getElementById('employeeRows');
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="color:var(--muted)">No employees match your filters.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map(e => `
+        <tr>
+          <td>
+            <strong>${escapeHtml(e.name)}</strong>
+            <div style="font-size:.75rem;color:var(--dim)">${escapeHtml(e.email)}</div>
+          </td>
+          <td>${escapeHtml(e.department)}</td>
+          <td>${escapeHtml(e.position)}</td>
+          <td><strong>${money(e.salary)}</strong></td>
+          <td class="row-actions">
+            <button class="btn btn-ghost btn-sm" data-act="details" data-id="${e.id}">Details</button>
+            <button class="btn btn-ghost btn-sm" data-act="edit" data-id="${e.id}">Edit</button>
+            <button class="btn btn-danger btn-sm" data-act="delete" data-id="${e.id}">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderCharts() {
+      const stats = deptStats();
+      const maxAvg = Math.max(...stats.map(s => s.avg), 1);
+
+      document.getElementById('scaleMax').textContent = money(maxAvg);
+      document.getElementById('deptBars').innerHTML = stats.map(s => {
+        const pct = Math.round((s.avg / maxAvg) * 100);
+        return `
+          <div class="bar-row">
+            <div class="label" title="${s.name}">${s.name}</div>
+            <div class="bar-track"><div class="bar-fill" data-w="${pct}%"></div></div>
+            <div class="num">${money(s.avg)}</div>
+          </div>`;
+      }).join('') || '<div style="color:var(--muted);font-size:.85rem">No data</div>';
+
+      // Headcount donut
+      const total = employees.length || 1;
+      const svg = document.getElementById('donutSvg');
+      const r = 52, c = 2 * Math.PI * r;
+      let offset = 0;
+      const slices = stats.map((s, i) => {
+        const frac = s.count / total;
+        const len = frac * c;
+        const color = COLORS[i % COLORS.length];
+        const el = `<circle cx="60" cy="60" r="${r}" fill="none" stroke="${color}" stroke-width="12"
+          stroke-dasharray="${len} ${c - len}" stroke-dashoffset="${-offset}"
+          stroke-linecap="butt"></circle>`;
+        offset += len;
+        return { el, name: s.name, count: s.count, color, pct: Math.round(frac * 100) };
+      });
+      svg.innerHTML = `<circle cx="60" cy="60" r="${r}" fill="none" stroke="#1c2738" stroke-width="12"></circle>` +
+        slices.map(s => s.el).join('');
+      document.getElementById('donutTotal').textContent = employees.length;
+      document.getElementById('donutLegend').innerHTML = slices.map(s => `
+        <div class="legend-item">
+          <span class="swatch" style="background:${s.color}"></span>
+          ${s.name} · ${s.count} (${s.pct}%)
+        </div>`).join('') || '<div class="legend-item">No data</div>';
+
+      // Salary bands
+      const bands = salaryBands();
+      const maxBand = Math.max(...bands.map(b => b.count), 1);
+      document.getElementById('bandBars').innerHTML = bands.map(b => {
+        const pct = Math.round((b.count / maxBand) * 100);
+        return `
+          <div class="bar-row">
+            <div class="label">${b.name}</div>
+            <div class="bar-track"><div class="bar-fill" data-w="${pct}%" style="background:linear-gradient(90deg,#22c55e,#3b82f6)"></div></div>
+            <div class="num">${b.count}</div>
+          </div>`;
+      }).join('');
+
+      requestAnimationFrame(() => {
+        document.querySelectorAll('.bar-fill').forEach(el => {
+          el.style.width = el.getAttribute('data-w') || '0%';
+        });
+      });
+    }
+
+    function renderAll() {
+      renderMetrics();
+      renderFilters();
+      renderTable();
+      renderCharts();
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function openForm(emp) {
+      document.getElementById('formError').textContent = '';
+      document.getElementById('formTitle').textContent = emp ? 'Edit employee' : 'Add employee';
+      document.getElementById('empId').value = emp ? emp.id : '';
+      document.getElementById('fName').value = emp ? emp.name : '';
+      document.getElementById('fEmail').value = emp ? emp.email : '';
+      document.getElementById('fDept').value = emp ? emp.department : '';
+      document.getElementById('fPos').value = emp ? emp.position : '';
+      document.getElementById('fSalary').value = emp ? emp.salary : '';
+      document.getElementById('formModal').classList.add('open');
+    }
+
+    function openDetails(emp) {
+      document.getElementById('detailsName').textContent = emp.name;
+      document.getElementById('detailsBody').innerHTML = `
+        <div><span>Email</span><strong>${escapeHtml(emp.email)}</strong></div>
+        <div><span>Department</span><strong>${escapeHtml(emp.department)}</strong></div>
+        <div><span>Position</span><strong>${escapeHtml(emp.position)}</strong></div>
+        <div><span>Salary</span><strong>${money(emp.salary)}</strong></div>
+        <div><span>ID</span><strong>#${emp.id}</strong></div>
+      `;
+      document.getElementById('detailsModal').classList.add('open');
+    }
+
+    // Events
+    document.getElementById('addBtn').onclick = () => openForm(null);
+    document.getElementById('cancelForm').onclick = () => document.getElementById('formModal').classList.remove('open');
+    document.getElementById('closeDetails').onclick = () => document.getElementById('detailsModal').classList.remove('open');
+    document.getElementById('formModal').addEventListener('click', e => {
+      if (e.target.id === 'formModal') e.target.classList.remove('open');
+    });
+    document.getElementById('detailsModal').addEventListener('click', e => {
+      if (e.target.id === 'detailsModal') e.target.classList.remove('open');
+    });
+
+    document.getElementById('employeeForm').onsubmit = (e) => {
+      e.preventDefault();
+      const id = document.getElementById('empId').value;
+      const row = {
+        id: id ? Number(id) : Date.now(),
+        name: document.getElementById('fName').value.trim(),
+        email: document.getElementById('fEmail').value.trim(),
+        department: document.getElementById('fDept').value.trim(),
+        position: document.getElementById('fPos').value.trim(),
+        salary: Number(document.getElementById('fSalary').value),
+      };
+      if (!row.name || !row.email || !row.department || !row.position || !(row.salary > 0)) {
+        document.getElementById('formError').textContent = 'All fields required; salary must be positive.';
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.email)) {
+        document.getElementById('formError').textContent = 'Enter a valid email address.';
+        return;
+      }
+      const idx = employees.findIndex(x => x.id === row.id);
+      if (idx >= 0) employees[idx] = row;
+      else employees.push(row);
+      save();
+      document.getElementById('formModal').classList.remove('open');
+      renderAll();
+    };
+
+    document.getElementById('employeeRows').onclick = (e) => {
+      const btn = e.target.closest('button[data-act]');
+      if (!btn) return;
+      const emp = employees.find(x => x.id === Number(btn.dataset.id));
+      if (!emp) return;
+      if (btn.dataset.act === 'details') openDetails(emp);
+      if (btn.dataset.act === 'edit') openForm(emp);
+      if (btn.dataset.act === 'delete' && confirm(`Delete ${emp.name}?`)) {
+        employees = employees.filter(x => x.id !== emp.id);
+        save();
+        renderAll();
+      }
+    };
+
+    document.getElementById('searchInput').oninput = (e) => { query = e.target.value; renderTable(); };
+    document.getElementById('deptFilter').onchange = (e) => { deptFilter = e.target.value; renderTable(); };
+    document.getElementById('sortKey').onchange = (e) => { sortKey = e.target.value; renderTable(); };
+    document.getElementById('sortDirBtn').onclick = () => {
+      sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+      document.getElementById('sortDirBtn').textContent = sortDir === 'asc' ? '↑ Asc' : '↓ Desc';
+      renderTable();
+    };
+    document.getElementById('resetBtn').onclick = () => {
+      if (!confirm('Reset to sample data?')) return;
+      employees = structuredClone(seed);
+      save();
+      query = ''; deptFilter = '';
+      document.getElementById('searchInput').value = '';
+      renderAll();
+    };
+
+    renderAll();
+  </script>
+</body>
+</html>

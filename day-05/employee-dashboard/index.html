@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 5 · Employee Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-glow" aria-hidden="true"></div>
+
+  <main class="container">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">E</div>
+        <div>
+          <p class="eyebrow">Day 05 · Vanilla JavaScript</p>
+          <h1>Employee Dashboard</h1>
+          <p class="muted">Search, filter, sort, and manage records in the browser.</p>
+        </div>
+      </div>
+      <button id="addButton" class="primary" type="button">
+        <span class="btn-plus">+</span> Add employee
+      </button>
+    </header>
+
+    <section class="metrics" aria-label="Summary metrics">
+      <article class="metric metric-a">
+        <div class="metric-icon">👥</div>
+        <div>
+          <span>Total employees</span>
+          <strong id="totalEmployees">0</strong>
+        </div>
+      </article>
+      <article class="metric metric-b">
+        <div class="metric-icon">₹</div>
+        <div>
+          <span>Average salary</span>
+          <strong id="averageSalary">₹0</strong>
+        </div>
+      </article>
+      <article class="metric metric-c">
+        <div class="metric-icon">▦</div>
+        <div>
+          <span>Departments</span>
+          <strong id="departmentCount">0</strong>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Roster</h2>
+        <p id="message" role="status"></p>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input
+            id="searchInput"
+            type="search"
+            aria-label="Search employees"
+            placeholder="Search name, email, position…"
+          />
+        </div>
+        <select id="departmentFilter" aria-label="Filter by department">
+          <option value="">All departments</option>
+        </select>
+        <select id="sortSelect" aria-label="Sort employees">
+          <option value="name-asc">Name: A–Z</option>
+          <option value="salary-desc">Salary: high to low</option>
+          <option value="salary-asc">Salary: low to high</option>
+          <option value="id-desc">Newest first</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Department</th>
+              <th>Position</th>
+              <th>Salary</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="employeeRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="foot">Day 5 · Modern JavaScript employee management</footer>
+  </main>
+
+  <!-- Add / Edit -->
+  <dialog id="employeeDialog">
+    <form id="employeeForm" method="dialog" class="dialog-card">
+      <div class="dialog-header">
+        <h2 id="formTitle">Add employee</h2>
+        <button type="button" class="icon" id="closeDialog" aria-label="Close">×</button>
+      </div>
+
+      <input type="hidden" id="employeeId" name="employeeId" />
+
+      <label>
+        Name
+        <input id="name" name="name" required minlength="2" placeholder="Full name" />
+      </label>
+      <label>
+        Email
+        <input id="email" name="email" type="email" required placeholder="name@example.com" />
+      </label>
+      <label>
+        Department
+        <input id="department" name="department" required placeholder="Engineering" />
+      </label>
+      <label>
+        Position
+        <input id="position" name="position" required placeholder="Developer" />
+      </label>
+      <label>
+        Salary (₹)
+        <input id="salary" name="salary" type="number" min="1" required placeholder="50000" />
+      </label>
+
+      <p id="formError" class="error"></p>
+
+      <div class="dialog-actions">
+        <button type="button" id="cancelButton" class="ghost">Cancel</button>
+        <button class="primary" type="submit">Save employee</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Details -->
+  <dialog id="detailsDialog">
+    <div class="dialog-card details-card">
+      <div id="detailsContent"></div>
+      <div class="dialog-actions">
+        <button id="closeDetails" class="primary" type="button">Close</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>

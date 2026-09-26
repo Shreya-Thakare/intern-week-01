@@ -1,0 +1,1024 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Smart Facility Command Center · Day 10</title>
+  <style>
+    :root {
+      --bg: #060a12;
+      --sidebar: #0c1220;
+      --card: #121a2b;
+      --elevated: #0e1524;
+      --border: #243044;
+      --border-soft: #1a2436;
+      --text: #eef3fb;
+      --muted: #93a4bf;
+      --dim: #64748b;
+      --accent: #3b82f6;
+      --accent-2: #6366f1;
+      --accent-soft: rgba(59,130,246,.15);
+      --green: #22c55e;
+      --green-soft: rgba(34,197,94,.15);
+      --red: #ef4444;
+      --red-soft: rgba(239,68,68,.15);
+      --amber: #f59e0b;
+      --amber-soft: rgba(245,158,11,.15);
+      --radius: 14px;
+      --shadow: 0 10px 36px rgba(0,0,0,.35);
+      font-family: "Segoe UI", Inter, system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      background: var(--bg); color: var(--text); line-height: 1.5;
+      display: flex; min-height: 100vh;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    a { color: var(--accent); text-decoration: none; }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px; flex-shrink: 0; background: var(--sidebar);
+      border-right: 1px solid var(--border-soft);
+      display: flex; flex-direction: column; padding: 1.25rem 0.9rem;
+      position: sticky; top: 0; height: 100vh;
+    }
+    .side-brand {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.25rem 0.5rem 1.25rem; border-bottom: 1px solid var(--border-soft);
+      margin-bottom: 1rem;
+    }
+    .side-brand .mark {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      display: grid; place-items: center; font-weight: 800;
+      box-shadow: 0 0 20px rgba(59,130,246,.4);
+    }
+    .side-brand small {
+      display: block; color: var(--dim); font-size: 0.65rem;
+      letter-spacing: .1em; text-transform: uppercase; font-weight: 700;
+    }
+    .side-brand strong { font-size: 0.95rem; }
+    .nav-list { display: grid; gap: 0.3rem; flex: 1; }
+    .nav-btn {
+      display: flex; align-items: center; gap: 0.65rem;
+      width: 100%; text-align: left; border: 0; border-radius: 10px;
+      padding: 0.7rem 0.85rem; background: transparent; color: var(--muted);
+      font-weight: 600; font-size: 0.9rem; transition: background .15s, color .15s;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,.04); color: var(--text); }
+    .nav-btn.active {
+      background: linear-gradient(90deg, rgba(59,130,246,.2), rgba(99,102,241,.08));
+      color: #fff; box-shadow: inset 3px 0 0 var(--accent);
+    }
+    .nav-btn .ico { width: 1.25rem; text-align: center; opacity: .9; }
+    .side-foot {
+      padding: 0.75rem 0.5rem 0; border-top: 1px solid var(--border-soft);
+      font-size: 0.72rem; color: var(--dim);
+    }
+    .api-pill {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      margin-top: 0.45rem; padding: 0.3rem 0.55rem; border-radius: 999px;
+      background: var(--card); border: 1px solid var(--border); font-size: 0.72rem; color: var(--muted);
+    }
+    .api-pill .dot {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--amber);
+      box-shadow: 0 0 6px var(--amber);
+    }
+    .api-pill.online .dot { background: var(--green); box-shadow: 0 0 6px var(--green); }
+
+    /* Main */
+    .main {
+      flex: 1; min-width: 0; padding: 1.35rem 1.35rem 2.5rem;
+      background:
+        radial-gradient(ellipse 60% 40% at 80% -10%, rgba(59,130,246,.1), transparent 50%),
+        var(--bg);
+    }
+    .page-head {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem;
+    }
+    .page-head h1 {
+      margin: 0; font-size: 1.45rem; font-weight: 750; letter-spacing: -.02em;
+    }
+    .page-head p { margin: 0.25rem 0 0; color: var(--muted); font-size: 0.9rem; }
+    .head-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+    .btn {
+      border: 0; border-radius: 10px; padding: 0.55rem 0.95rem;
+      font-weight: 650; font-size: 0.88rem;
+      background: linear-gradient(135deg, #2563eb, #4f46e5); color: #fff;
+      box-shadow: 0 4px 16px rgba(37,99,235,.3);
+      transition: filter .15s, transform .1s;
+    }
+    .btn:hover { filter: brightness(1.08); }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: .55; cursor: wait; }
+    .btn-ghost {
+      background: var(--card); color: var(--text); border: 1px solid var(--border);
+      box-shadow: none;
+    }
+    .btn-danger {
+      background: var(--red-soft); color: #fca5a5; border: 1px solid rgba(239,68,68,.35);
+      box-shadow: none;
+    }
+    .btn-sm { padding: 0.35rem 0.65rem; font-size: 0.78rem; border-radius: 8px; }
+
+    .metrics {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.85rem;
+      margin-bottom: 1.15rem;
+    }
+    .metric {
+      background: linear-gradient(160deg, #152033, #101828);
+      border: 1px solid var(--border-soft); border-radius: var(--radius);
+      padding: 1rem 1.1rem; box-shadow: var(--shadow); position: relative; overflow: hidden;
+    }
+    .metric::after {
+      content: ""; position: absolute; right: -15%; bottom: -35%;
+      width: 90px; height: 90px; border-radius: 50%; opacity: .4;
+    }
+    .metric:nth-child(1)::after { background: rgba(59,130,246,.25); }
+    .metric:nth-child(2)::after { background: rgba(245,158,11,.2); }
+    .metric:nth-child(3)::after { background: rgba(167,139,250,.2); }
+    .metric:nth-child(4)::after { background: rgba(239,68,68,.18); }
+    .metric label { display: block; color: var(--muted); font-size: 0.78rem; margin-bottom: 0.2rem; }
+    .metric .value { font-size: 1.55rem; font-weight: 750; letter-spacing: -.03em; }
+    .metric .sub { color: var(--dim); font-size: 0.72rem; margin-top: 0.15rem; }
+
+    .panel {
+      background: linear-gradient(180deg, #141d2e, #101827);
+      border: 1px solid var(--border-soft); border-radius: var(--radius);
+      padding: 1.15rem; box-shadow: var(--shadow);
+    }
+    .panel-head {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.95rem;
+    }
+    .panel-head h2 { margin: 0; font-size: 1rem; font-weight: 700; }
+    .tag {
+      font-size: 0.68rem; font-weight: 650; color: var(--dim);
+      text-transform: uppercase; letter-spacing: .06em;
+    }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .grid-2 { display: grid; grid-template-columns: 1.15fr 0.95fr; gap: 1rem; }
+    .grid-2b { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+
+    .toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.85rem; }
+    .toolbar input, .toolbar select,
+    .field input, .field select, .field textarea {
+      background: #0b1220; border: 1px solid var(--border); color: var(--text);
+      border-radius: 10px; padding: 0.55rem 0.75rem; outline: none;
+    }
+    .toolbar input { flex: 1; min-width: 160px; }
+    .toolbar input:focus, .field input:focus, .field select:focus {
+      border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left; color: var(--dim); font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em;
+      padding: 0.5rem 0.4rem; border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 0.75rem 0.4rem; border-bottom: 1px solid var(--border-soft);
+      font-size: 0.9rem; vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: 0; }
+    tbody tr { transition: background .12s; }
+    tbody tr.clickable { cursor: pointer; }
+    tbody tr.clickable:hover td, tbody tr.active td {
+      background: rgba(59,130,246,.07);
+    }
+
+    .badge {
+      display: inline-flex; align-items: center; padding: 0.18rem 0.5rem;
+      border-radius: 999px; font-size: 0.72rem; font-weight: 700;
+    }
+    .badge.high, .badge.open { background: var(--red-soft); color: #fca5a5; border: 1px solid rgba(239,68,68,.3); }
+    .badge.low, .badge.resolved { background: var(--green-soft); color: #86efac; border: 1px solid rgba(34,197,94,.3); }
+    .badge.mid, .badge.progress { background: var(--amber-soft); color: #fcd34d; border: 1px solid rgba(245,158,11,.3); }
+
+    .form { display: grid; gap: 0.65rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; }
+    .field { display: grid; gap: 0.28rem; font-size: 0.78rem; color: var(--muted); font-weight: 500; }
+
+    /* Gauge */
+    .risk-hero { display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .gauge-wrap { position: relative; width: 140px; height: 140px; flex-shrink: 0; }
+    .gauge-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .gauge-track { fill: none; stroke: var(--border); stroke-width: 10; }
+    .gauge-fill { fill: none; stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset .7s ease, stroke .3s; }
+    .gauge-center {
+      position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
+    }
+    .gauge-center .pct { font-size: 1.5rem; font-weight: 800; line-height: 1; }
+    .gauge-center .lbl { font-size: 0.62rem; color: var(--dim); text-transform: uppercase; letter-spacing: .08em; margin-top: 0.15rem; }
+    .risk-meta h3 { margin: 0 0 0.3rem; font-size: 1.25rem; }
+    .risk-meta p { margin: 0; color: var(--muted); font-size: 0.88rem; }
+    .source {
+      display: inline-block; margin-top: 0.5rem; font-size: 0.72rem; color: var(--dim);
+      padding: 0.2rem 0.5rem; border-radius: 6px; background: var(--elevated); border: 1px solid var(--border);
+    }
+
+    .bars { display: grid; gap: 0.55rem; }
+    .bar-row {
+      display: grid; grid-template-columns: 110px 1fr 42px; gap: 0.5rem; align-items: center;
+    }
+    .bar-row span { font-size: 0.78rem; color: var(--muted); }
+    .bar-row .num { text-align: right; font-weight: 600; color: var(--text); font-size: 0.78rem; }
+    .bar-track {
+      height: 8px; border-radius: 999px; background: #0b1220;
+      border: 1px solid var(--border-soft); overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%; border-radius: 999px; width: 0; transition: width .65s ease;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    }
+    .bar-fill.warn { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+    .bar-fill.ok { background: linear-gradient(90deg, #22c55e, #3b82f6); }
+
+    .detail-box {
+      background: var(--elevated); border: 1px solid var(--border-soft);
+      border-radius: 12px; padding: 0.9rem 1rem; margin-bottom: 0.85rem;
+    }
+    .detail-box h3 { margin: 0 0 0.35rem; font-size: 1.1rem; }
+    .detail-meta { color: var(--muted); font-size: 0.85rem; }
+    .detail-actions { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.75rem; }
+
+    .empty { text-align: center; color: var(--dim); padding: 1.5rem 0.5rem; font-size: 0.9rem; }
+    .toast { font-size: 0.85rem; min-height: 1.2em; margin-top: 0.5rem; }
+    .toast.ok { color: #86efac; }
+    .toast.err { color: #fca5a5; }
+
+    .activity-list { display: grid; gap: 0.5rem; max-height: 360px; overflow-y: auto; }
+    .activity-item {
+      display: grid; grid-template-columns: auto 1fr auto; gap: 0.65rem; align-items: start;
+      padding: 0.65rem 0.75rem; background: var(--elevated); border: 1px solid var(--border-soft);
+      border-radius: 10px; font-size: 0.85rem;
+    }
+    .activity-item .when { color: var(--dim); font-size: 0.72rem; white-space: nowrap; }
+
+    .alert-banner {
+      display: none; gap: 0.85rem; align-items: flex-start;
+      margin-bottom: 1rem; padding: 0.85rem 1rem; border-radius: 12px;
+      background: linear-gradient(90deg, rgba(239,68,68,.12), rgba(245,158,11,.08));
+      border: 1px solid rgba(239,68,68,.35);
+    }
+    .alert-banner.show { display: flex; }
+    .alert-banner strong { color: #fca5a5; display: block; margin-bottom: 0.15rem; }
+    .alert-banner p { margin: 0; color: var(--muted); font-size: 0.88rem; }
+
+    /* Mobile sidebar */
+    .menu-toggle {
+      display: none; border: 1px solid var(--border); background: var(--card);
+      color: var(--text); border-radius: 10px; padding: 0.45rem 0.7rem; font-weight: 650;
+    }
+    @media (max-width: 960px) {
+      body { flex-direction: column; }
+      .sidebar {
+        width: 100%; height: auto; position: relative; border-right: 0;
+        border-bottom: 1px solid var(--border-soft);
+      }
+      .sidebar.collapsed .nav-list, .sidebar.collapsed .side-foot { display: none; }
+      .menu-toggle { display: inline-flex; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .grid-2, .grid-2b { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) {
+      .metrics { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand">
+      <div class="mark">H</div>
+      <div>
+        <small>Day 10 · Final</small>
+        <strong>Hygiene Command</strong>
+      </div>
+    </div>
+    <button class="menu-toggle" type="button" id="menuToggle">Menu</button>
+    <nav class="nav-list" id="navList">
+      <button type="button" class="nav-btn active" data-view="overview"><span class="ico">▣</span> Overview</button>
+      <button type="button" class="nav-btn" data-view="facilities"><span class="ico">☰</span> Facilities</button>
+      <button type="button" class="nav-btn" data-view="predict"><span class="ico">◈</span> Predict risk</button>
+      <button type="button" class="nav-btn" data-view="complaints"><span class="ico">✉</span> Complaints</button>
+      <button type="button" class="nav-btn" data-view="activity"><span class="ico">⏱</span> Activity</button>
+    </nav>
+    <div class="side-foot">
+      Smart Facility Management
+      <div class="api-pill offline" id="apiStatus">
+        <span class="dot"></span>
+        <span id="apiStatusText">Checking…</span>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <!-- OVERVIEW -->
+    <section class="view active" id="view-overview">
+      <div class="page-head">
+        <div>
+          <h1>Command overview</h1>
+          <p>Live snapshot of facilities, risk, and open issues.</p>
+        </div>
+        <div class="head-actions">
+          <button type="button" class="btn btn-ghost" data-go="predict">Run prediction</button>
+          <button type="button" class="btn" data-go="facilities">View facilities</button>
+        </div>
+      </div>
+
+      <div class="alert-banner" id="alertBanner">
+        <div>
+          <strong id="alertTitle">Attention required</strong>
+          <p id="alertText"></p>
+        </div>
+      </div>
+
+      <section class="metrics">
+        <div class="metric">
+          <label>Facilities</label>
+          <div class="value" id="mFacilities">0</div>
+          <div class="sub">Monitored sites</div>
+        </div>
+        <div class="metric">
+          <label>Open complaints</label>
+          <div class="value" id="mComplaints">0</div>
+          <div class="sub">Needs response</div>
+        </div>
+        <div class="metric">
+          <label>High-risk sites</label>
+          <div class="value" id="mHighRisk">0</div>
+          <div class="sub">Score &lt; 6</div>
+        </div>
+        <div class="metric">
+          <label>Predictions run</label>
+          <div class="value" id="mPredictions">0</div>
+          <div class="sub">This session</div>
+        </div>
+      </section>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Priority facilities</h2>
+            <span class="tag">Click a row</span>
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead>
+                <tr><th>Facility</th><th>Location</th><th>Score</th><th>Risk</th></tr>
+              </thead>
+              <tbody id="overviewRows"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Risk distribution</h2>
+            <span class="tag">By score</span>
+          </div>
+          <div class="bars" id="overviewBars"></div>
+          <div class="detail-actions" style="margin-top:1rem">
+            <button type="button" class="btn btn-sm btn-ghost" data-go="complaints">Manage complaints</button>
+            <button type="button" class="btn btn-sm" data-go="activity">View activity</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FACILITIES -->
+    <section class="view" id="view-facilities">
+      <div class="page-head">
+        <div>
+          <h1>Facilities</h1>
+          <p>Search, sort, open details, or predict risk for a site.</p>
+        </div>
+        <div class="head-actions">
+          <button type="button" class="btn" data-go="predict">Predict risk</button>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="toolbar">
+            <input id="facSearch" type="search" placeholder="Search name or location…" />
+            <select id="facSort">
+              <option value="score">Sort: Score</option>
+              <option value="name">Sort: Name</option>
+            </select>
+            <select id="facFilter">
+              <option value="">All risk</option>
+              <option value="high">High risk</option>
+              <option value="low">Low risk</option>
+            </select>
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead>
+                <tr><th>Facility</th><th>Location</th><th>Score</th><th>Risk</th><th></th></tr>
+              </thead>
+              <tbody id="facilityRows"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Facility detail</h2>
+            <span class="tag" id="detailTag">Select a row</span>
+          </div>
+          <div id="facilityDetail" class="empty">Click any facility to see details and actions.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PREDICT -->
+    <section class="view" id="view-predict">
+      <div class="page-head">
+        <div>
+          <h1>Hygiene risk prediction</h1>
+          <p>ML / local model · fill inputs or load from a facility.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Model inputs</h2>
+            <span class="tag">Editable</span>
+          </div>
+          <form class="form" id="predictForm">
+            <div class="form-row">
+              <label class="field">Cleanliness (0–10)
+                <input name="cleanliness_score" type="number" min="0" max="10" step="0.1" value="5" required />
+              </label>
+              <label class="field">Odor (0–10)
+                <input name="odor_score" type="number" min="0" max="10" step="0.1" value="7" required />
+              </label>
+            </div>
+            <div class="form-row">
+              <label class="field">Waste (0–10)
+                <input name="waste_level" type="number" min="0" max="10" step="0.1" value="6" required />
+              </label>
+              <label class="field">Complaints
+                <input name="complaints" type="number" min="0" value="4" required />
+              </label>
+            </div>
+            <div class="form-row">
+              <label class="field">Footfall
+                <input name="footfall" type="number" min="0" value="350" required />
+              </label>
+              <label class="field">Hours since cleaning
+                <input name="hours_since_cleaning" type="number" min="0" value="24" required />
+              </label>
+            </div>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+              <button class="btn" type="submit" id="predictBtn">Run prediction</button>
+              <button class="btn btn-ghost" type="button" id="resetFormBtn">Reset defaults</button>
+            </div>
+            <p class="toast" id="predictToast"></p>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Prediction result</h2>
+            <span class="tag">Gauge · drivers</span>
+          </div>
+          <div id="vizEmpty" class="empty">Run a prediction to see the risk gauge and feature contribution.</div>
+          <div id="vizResult" hidden>
+            <div class="risk-hero">
+              <div class="gauge-wrap">
+                <svg viewBox="0 0 120 120" aria-hidden="true">
+                  <circle class="gauge-track" cx="60" cy="60" r="52" />
+                  <circle id="gaugeFill" class="gauge-fill" cx="60" cy="60" r="52"
+                    stroke-dasharray="326.73" stroke-dashoffset="326.73" stroke="#ef4444" />
+                </svg>
+                <div class="gauge-center">
+                  <div>
+                    <div class="pct" id="gaugePct">0%</div>
+                    <div class="lbl">probability</div>
+                  </div>
+                </div>
+              </div>
+              <div class="risk-meta">
+                <h3 id="riskLabel">—</h3>
+                <p id="riskDesc">—</p>
+                <span class="source" id="riskSource">—</span>
+              </div>
+            </div>
+            <div class="tag" style="margin-bottom:.55rem">Feature contribution</div>
+            <div class="bars" id="featureBars"></div>
+            <p class="toast ok" id="historyNote" style="margin-top:.85rem"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMPLAINTS -->
+    <section class="view" id="view-complaints">
+      <div class="page-head">
+        <div>
+          <h1>Complaints</h1>
+          <p>Track and update complaint status.</p>
+        </div>
+        <div class="head-actions">
+          <select id="complaintFilter">
+            <option value="">All statuses</option>
+            <option value="Open">Open</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Resolved">Resolved</option>
+          </select>
+        </div>
+      </div>
+      <div class="panel">
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr><th>Facility</th><th>Issue</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="complaintRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ACTIVITY -->
+    <section class="view" id="view-activity">
+      <div class="page-head">
+        <div>
+          <h1>Activity log</h1>
+          <p>Predictions, complaint updates, and facility selections.</p>
+        </div>
+        <div class="head-actions">
+          <button type="button" class="btn btn-ghost" id="clearActivityBtn">Clear log</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="activity-list" id="activityFeed"></div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const API = 'http://localhost:8000';
+    const GAUGE = 2 * Math.PI * 52;
+
+    const facilities = [
+      { id: 1, name: 'Central Washroom', location: 'Nagpur Central', score: 5.5 },
+      { id: 2, name: 'Cafeteria', location: 'Dharampeth', score: 8.2 },
+      { id: 3, name: 'Library Restroom', location: 'Sitabuldi', score: 6.8 },
+      { id: 4, name: 'Station Platform WC', location: 'Nagpur Station', score: 4.1 },
+      { id: 5, name: 'Mall Food Court', location: 'Empress Mall', score: 7.4 },
+      { id: 6, name: 'Park Public Toilet', location: 'Seminary Hills', score: 5.9 },
+    ];
+
+    let complaints = [
+      { id: 1, facility: 'Central Washroom', description: 'Bad odor reported', status: 'Open' },
+      { id: 2, facility: 'Central Washroom', description: 'Waste bin is full', status: 'In Progress' },
+      { id: 3, facility: 'Station Platform WC', description: 'No water pressure', status: 'Open' },
+      { id: 4, facility: 'Park Public Toilet', description: 'Broken door latch', status: 'Open' },
+      { id: 5, facility: 'Cafeteria', description: 'Spill near entrance', status: 'Resolved' },
+    ];
+
+    let selectedId = null;
+    let predictions = 0;
+    let activity = [];
+    let facQuery = '';
+    let facSort = 'score';
+    let facFilter = '';
+    let complaintFilter = '';
+
+    function riskOf(score) {
+      return score < 6 ? 'High' : 'Low';
+    }
+
+    function badge(risk) {
+      const cls = risk === 'High' ? 'high' : 'low';
+      return `<span class="badge ${cls}">${risk}</span>`;
+    }
+
+    function complaintBadge(status) {
+      const cls = status === 'Open' ? 'open' : status === 'Resolved' ? 'resolved' : 'progress';
+      return `<span class="badge ${cls}">${status}</span>`;
+    }
+
+    function logActivity(text, kind) {
+      activity.unshift({
+        text,
+        kind: kind || 'info',
+        when: new Date().toLocaleTimeString(),
+      });
+      if (activity.length > 40) activity.pop();
+      renderActivity();
+    }
+
+    function localPredict(d) {
+      const cleanliness = Number(d.cleanliness_score);
+      const odor = Number(d.odor_score);
+      const waste = Number(d.waste_level);
+      const complaintsN = Number(d.complaints);
+      const footfall = Number(d.footfall);
+      const hours = Number(d.hours_since_cleaning);
+      const drivers = {
+        'Low cleanliness': (10 - cleanliness) / 10,
+        'Odor': odor / 10,
+        'Waste': waste / 10,
+        'Complaints': Math.min(complaintsN / 10, 1),
+        'Cleaning delay': Math.min(hours / 48, 1),
+        'Footfall load': Math.min(footfall / 800, 1),
+      };
+      let score =
+        drivers['Low cleanliness'] * 0.22 +
+        drivers['Odor'] * 0.18 +
+        drivers['Waste'] * 0.18 +
+        drivers['Complaints'] * 0.12 +
+        drivers['Cleaning delay'] * 0.18 +
+        drivers['Footfall load'] * 0.12;
+      const prob = Math.max(0, Math.min(1, score / 0.95));
+      return {
+        hygiene_risk: prob >= 0.5 ? 'High' : 'Low',
+        high_risk_probability: Math.round(prob * 1000) / 1000,
+        source: 'local',
+        drivers,
+      };
+    }
+
+    function computeDrivers(d) {
+      return {
+        'Low cleanliness': (10 - Number(d.cleanliness_score)) / 10,
+        'Odor': Number(d.odor_score) / 10,
+        'Waste': Number(d.waste_level) / 10,
+        'Complaints': Math.min(Number(d.complaints) / 10, 1),
+        'Cleaning delay': Math.min(Number(d.hours_since_cleaning) / 48, 1),
+        'Footfall load': Math.min(Number(d.footfall) / 800, 1),
+      };
+    }
+
+    async function predict(body) {
+      try {
+        const res = await fetch(`${API}/predict`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) throw new Error('api');
+        const data = await res.json();
+        data.source = 'api';
+        data.drivers = computeDrivers(body);
+        return data;
+      } catch {
+        return localPredict(body);
+      }
+    }
+
+    function showView(name) {
+      document.querySelectorAll('.view').forEach((v) => v.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach((b) => b.classList.remove('active'));
+      const view = document.getElementById('view-' + name);
+      if (view) view.classList.add('active');
+      const btn = document.querySelector(`.nav-btn[data-view="${name}"]`);
+      if (btn) btn.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function fillPredictFromFacility(f) {
+      const form = document.getElementById('predictForm');
+      form.cleanliness_score.value = f.score;
+      form.odor_score.value = Math.max(0, +(10 - f.score).toFixed(1));
+      form.waste_level.value = Math.max(0, +(10 - f.score * 0.9).toFixed(1));
+      form.complaints.value = f.score < 6 ? 4 : 1;
+      form.footfall.value = f.score < 6 ? 400 : 250;
+      form.hours_since_cleaning.value = f.score < 6 ? 30 : 10;
+    }
+
+    function selectFacility(id) {
+      selectedId = id;
+      const f = facilities.find((x) => x.id === id);
+      if (!f) return;
+      renderFacilityTables();
+      const risk = riskOf(f.score);
+      document.getElementById('detailTag').textContent = 'Selected';
+      document.getElementById('facilityDetail').innerHTML = `
+        <div class="detail-box">
+          <h3>${f.name}</h3>
+          <div class="detail-meta">${f.location} · Score ${f.score.toFixed(1)} · ${badge(risk)}</div>
+          <div class="detail-actions">
+            <button type="button" class="btn btn-sm" id="detailPredictBtn">Predict for this site</button>
+            <button type="button" class="btn btn-sm btn-ghost" data-go="complaints">Related complaints</button>
+          </div>
+        </div>
+        <p style="color:var(--muted);font-size:.88rem;margin:0">
+          Use <strong>Predict for this site</strong> to load scores into the model form and jump to prediction.
+        </p>`;
+      document.getElementById('detailPredictBtn').onclick = () => {
+        fillPredictFromFacility(f);
+        showView('predict');
+        logActivity(`Loaded prediction inputs for ${f.name}`, 'predict');
+      };
+      logActivity(`Opened facility: ${f.name}`, 'facility');
+    }
+
+    function showVisualization(result, inputs) {
+      document.getElementById('vizEmpty').hidden = true;
+      document.getElementById('vizResult').hidden = false;
+      const prob = Number(result.high_risk_probability) || 0;
+      const pct = Math.round(prob * 100);
+      const isHigh = result.hygiene_risk === 'High';
+      const fill = document.getElementById('gaugeFill');
+      fill.style.stroke = isHigh ? '#ef4444' : '#22c55e';
+      fill.style.strokeDashoffset = String(GAUGE);
+      requestAnimationFrame(() => {
+        fill.style.strokeDashoffset = String(GAUGE * (1 - prob));
+      });
+      document.getElementById('gaugePct').textContent = pct + '%';
+      document.getElementById('gaugePct').style.color = isHigh ? '#fca5a5' : '#86efac';
+      document.getElementById('riskLabel').textContent = isHigh ? 'High hygiene risk' : 'Low hygiene risk';
+      document.getElementById('riskLabel').style.color = isHigh ? '#fca5a5' : '#86efac';
+      document.getElementById('riskDesc').textContent = isHigh
+        ? 'Prioritize inspection and cleaning within 24 hours.'
+        : 'Conditions look acceptable. Continue routine monitoring.';
+      document.getElementById('riskSource').textContent =
+        result.source === 'api' ? 'Source: FastAPI ML model' : 'Source: built-in local model';
+      const drivers = result.drivers || computeDrivers(inputs);
+      const bars = document.getElementById('featureBars');
+      bars.innerHTML = Object.entries(drivers)
+        .sort((a, b) => b[1] - a[1])
+        .map(([name, val]) => {
+          const p = Math.round(val * 100);
+          const cls = val >= 0.6 ? 'warn' : val <= 0.3 ? 'ok' : '';
+          return `<div class="bar-row">
+            <span>${name}</span>
+            <div class="bar-track"><div class="bar-fill ${cls}" data-w="${p}%"></div></div>
+            <span class="num">${p}%</span>
+          </div>`;
+        }).join('');
+      requestAnimationFrame(() => {
+        bars.querySelectorAll('.bar-fill').forEach((el) => {
+          el.style.width = el.getAttribute('data-w');
+        });
+      });
+      document.getElementById('historyNote').textContent = isHigh
+        ? 'Recommendation: schedule inspection, increase cleaning, log follow-up complaints.'
+        : 'Recommendation: maintain schedule; re-check after peak footfall.';
+    }
+
+    function renderMetrics() {
+      document.getElementById('mFacilities').textContent = facilities.length;
+      document.getElementById('mComplaints').textContent = complaints.filter((c) => c.status === 'Open').length;
+      document.getElementById('mHighRisk').textContent = facilities.filter((f) => f.score < 6).length;
+      document.getElementById('mPredictions').textContent = predictions;
+    }
+
+    function renderAlert() {
+      const high = facilities.filter((f) => f.score < 6);
+      const open = complaints.filter((c) => c.status === 'Open');
+      const banner = document.getElementById('alertBanner');
+      if (high.length || open.length) {
+        banner.classList.add('show');
+        document.getElementById('alertTitle').textContent = high.length
+          ? 'High-risk facilities need attention'
+          : 'Open complaints pending';
+        document.getElementById('alertText').textContent = [
+          high.length ? high.map((f) => f.name).join(', ') : null,
+          open.length ? open.length + ' open complaint(s)' : null,
+        ].filter(Boolean).join(' · ');
+      } else {
+        banner.classList.remove('show');
+      }
+    }
+
+    function renderOverview() {
+      const sorted = [...facilities].sort((a, b) => a.score - b.score);
+      document.getElementById('overviewRows').innerHTML = sorted.map((f) => `
+        <tr class="clickable" data-id="${f.id}" data-go-facility="${f.id}">
+          <td><strong>${f.name}</strong></td>
+          <td style="color:var(--muted)">${f.location}</td>
+          <td>${f.score.toFixed(1)}</td>
+          <td>${badge(riskOf(f.score))}</td>
+        </tr>`).join('');
+
+      const bands = [
+        { name: 'High risk (<6)', count: facilities.filter((f) => f.score < 6).length },
+        { name: 'Medium (6–7.5)', count: facilities.filter((f) => f.score >= 6 && f.score < 7.5).length },
+        { name: 'Low (≥7.5)', count: facilities.filter((f) => f.score >= 7.5).length },
+      ];
+      const max = Math.max(...bands.map((b) => b.count), 1);
+      document.getElementById('overviewBars').innerHTML = bands.map((b) => {
+        const pct = Math.round((b.count / max) * 100);
+        const warn = b.name.startsWith('High') ? 'warn' : b.name.startsWith('Low') ? 'ok' : '';
+        return `<div class="bar-row">
+          <span>${b.name}</span>
+          <div class="bar-track"><div class="bar-fill ${warn}" data-w="${pct}%"></div></div>
+          <span class="num">${b.count}</span>
+        </div>`;
+      }).join('');
+      requestAnimationFrame(() => {
+        document.querySelectorAll('#overviewBars .bar-fill').forEach((el) => {
+          el.style.width = el.getAttribute('data-w');
+        });
+      });
+    }
+
+    function renderFacilityTables() {
+      let list = facilities.filter((f) => {
+        const q = facQuery.trim().toLowerCase();
+        const matchQ = !q || f.name.toLowerCase().includes(q) || f.location.toLowerCase().includes(q);
+        const risk = riskOf(f.score).toLowerCase();
+        const matchF = !facFilter || risk === facFilter;
+        return matchQ && matchF;
+      });
+      list = [...list].sort((a, b) =>
+        facSort === 'name' ? a.name.localeCompare(b.name) : a.score - b.score
+      );
+
+      document.getElementById('facilityRows').innerHTML = list.length
+        ? list.map((f) => `
+          <tr class="clickable ${f.id === selectedId ? 'active' : ''}" data-id="${f.id}">
+            <td><strong>${f.name}</strong></td>
+            <td style="color:var(--muted)">${f.location}</td>
+            <td>${f.score.toFixed(1)}</td>
+            <td>${badge(riskOf(f.score))}</td>
+            <td>
+              <button type="button" class="btn btn-sm btn-ghost" data-predict-id="${f.id}">Predict</button>
+            </td>
+          </tr>`).join('')
+        : '<tr><td colspan="5" class="empty">No facilities match filters.</td></tr>';
+    }
+
+    function renderComplaints() {
+      const list = complaints.filter((c) => !complaintFilter || c.status === complaintFilter);
+      document.getElementById('complaintRows').innerHTML = list.length
+        ? list.map((c) => `
+          <tr>
+            <td>${c.facility}</td>
+            <td style="color:var(--muted)">${c.description}</td>
+            <td>${complaintBadge(c.status)}</td>
+            <td style="display:flex;gap:.35rem;flex-wrap:wrap">
+              ${c.status !== 'In Progress' ? `<button type="button" class="btn btn-sm btn-ghost" data-c-status="${c.id}|In Progress">In progress</button>` : ''}
+              ${c.status !== 'Resolved' ? `<button type="button" class="btn btn-sm" data-c-status="${c.id}|Resolved">Resolve</button>` : ''}
+              ${c.status === 'Resolved' ? `<button type="button" class="btn btn-sm btn-ghost" data-c-status="${c.id}|Open">Reopen</button>` : ''}
+            </td>
+          </tr>`).join('')
+        : '<tr><td colspan="4" class="empty">No complaints in this filter.</td></tr>';
+    }
+
+    function renderActivity() {
+      const feed = document.getElementById('activityFeed');
+      if (!activity.length) {
+        feed.innerHTML = '<div class="empty">No activity yet. Navigate, predict, or update complaints.</div>';
+        return;
+      }
+      feed.innerHTML = activity.map((a) => `
+        <div class="activity-item">
+          <span class="badge mid">${a.kind}</span>
+          <div>${a.text}</div>
+          <span class="when">${a.when}</span>
+        </div>`).join('');
+    }
+
+    function renderAll() {
+      renderMetrics();
+      renderAlert();
+      renderOverview();
+      renderFacilityTables();
+      renderComplaints();
+      renderActivity();
+    }
+
+    // Navigation
+    document.getElementById('navList').addEventListener('click', (e) => {
+      const btn = e.target.closest('.nav-btn');
+      if (!btn) return;
+      showView(btn.dataset.view);
+      logActivity(`Opened ${btn.dataset.view} view`, 'nav');
+    });
+
+    document.body.addEventListener('click', (e) => {
+      const go = e.target.closest('[data-go]');
+      if (go) {
+        showView(go.dataset.go);
+        return;
+      }
+      const goFac = e.target.closest('[data-go-facility]');
+      if (goFac) {
+        selectFacility(Number(goFac.dataset.goFacility));
+        showView('facilities');
+        return;
+      }
+      const pred = e.target.closest('[data-predict-id]');
+      if (pred) {
+        e.stopPropagation();
+        const f = facilities.find((x) => x.id === Number(pred.dataset.predictId));
+        if (f) {
+          fillPredictFromFacility(f);
+          showView('predict');
+          logActivity(`Quick-predict loaded: ${f.name}`, 'predict');
+        }
+        return;
+      }
+      const cBtn = e.target.closest('[data-c-status]');
+      if (cBtn) {
+        const [id, status] = cBtn.dataset.cStatus.split('|');
+        const c = complaints.find((x) => x.id === Number(id));
+        if (c) {
+          c.status = status;
+          logActivity(`Complaint "${c.description}" → ${status}`, 'complaint');
+          renderMetrics();
+          renderAlert();
+          renderComplaints();
+        }
+      }
+    });
+
+    document.getElementById('facilityRows').addEventListener('click', (e) => {
+      if (e.target.closest('button')) return;
+      const tr = e.target.closest('tr[data-id]');
+      if (tr) selectFacility(Number(tr.dataset.id));
+    });
+
+    document.getElementById('facSearch').oninput = (e) => {
+      facQuery = e.target.value;
+      renderFacilityTables();
+    };
+    document.getElementById('facSort').onchange = (e) => {
+      facSort = e.target.value;
+      renderFacilityTables();
+    };
+    document.getElementById('facFilter').onchange = (e) => {
+      facFilter = e.target.value;
+      renderFacilityTables();
+    };
+    document.getElementById('complaintFilter').onchange = (e) => {
+      complaintFilter = e.target.value;
+      renderComplaints();
+    };
+
+    document.getElementById('predictForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(e.currentTarget));
+      Object.keys(data).forEach((k) => (data[k] = Number(data[k])));
+      const btn = document.getElementById('predictBtn');
+      const toast = document.getElementById('predictToast');
+      btn.disabled = true;
+      btn.textContent = 'Predicting…';
+      toast.textContent = '';
+      const result = await predict(data);
+      predictions += 1;
+      showVisualization(result, data);
+      renderMetrics();
+      toast.className = 'toast ok';
+      toast.textContent = `Result: ${result.hygiene_risk} (${result.high_risk_probability})`;
+      logActivity(`Prediction → ${result.hygiene_risk} (${Math.round(result.high_risk_probability * 100)}%)`, 'predict');
+      btn.disabled = false;
+      btn.textContent = 'Run prediction';
+    });
+
+    document.getElementById('resetFormBtn').onclick = () => {
+      const f = document.getElementById('predictForm');
+      f.cleanliness_score.value = 5;
+      f.odor_score.value = 7;
+      f.waste_level.value = 6;
+      f.complaints.value = 4;
+      f.footfall.value = 350;
+      f.hours_since_cleaning.value = 24;
+      document.getElementById('predictToast').textContent = 'Form reset.';
+    };
+
+    document.getElementById('clearActivityBtn').onclick = () => {
+      activity = [];
+      renderActivity();
+    };
+
+    document.getElementById('menuToggle').onclick = () => {
+      document.getElementById('sidebar').classList.toggle('collapsed');
+    };
+
+    (async function checkApi() {
+      const pill = document.getElementById('apiStatus');
+      const text = document.getElementById('apiStatusText');
+      try {
+        const res = await fetch(`${API}/health`, { signal: AbortSignal.timeout(2000) });
+        if (!res.ok) throw new Error('bad');
+        pill.classList.add('online');
+        text.textContent = 'API online';
+      } catch {
+        pill.classList.remove('online');
+        text.textContent = 'Local model';
+      }
+    })();
+
+    renderAll();
+    logActivity('Dashboard loaded', 'system');
+  </script>
+</body>
+</html>

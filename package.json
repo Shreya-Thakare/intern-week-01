@@ -1,0 +1,8 @@
+{
+  "name": "intern-week-static",
+  "private": true,
+  "description": "Static HTML dashboards for 10-day intern training",
+  "scripts": {
+    "build": "echo 'Static site — no build step'"
+  }
+}

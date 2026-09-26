@@ -1,0 +1,151 @@
+{
+  "overall": {
+    "cleanliness_score": {
+      "mean": 6.42,
+      "median": 6.4,
+      "std": 1.73,
+      "min": 1.1,
+      "max": 10.0
+    },
+    "odor_score": {
+      "mean": 4.63,
+      "median": 4.6,
+      "std": 2.04,
+      "min": 1.0,
+      "max": 10.0
+    },
+    "waste_level": {
+      "mean": 43.99,
+      "median": 44.0,
+      "std": 20.56,
+      "min": 0.0,
+      "max": 100.0
+    },
+    "footfall": {
+      "mean": 441.83,
+      "median": 435.0,
+      "std": 205.25,
+      "min": 20.0,
+      "max": 1148.0
+    },
+    "complaints": {
+      "mean": 4.49,
+      "median": 4.0,
+      "std": 2.46,
+      "min": 0.0,
+      "max": 12.0
+    },
+    "hours_since_cleaning": {
+      "mean": 7.6,
+      "median": 5.3,
+      "std": 7.26,
+      "min": 0.5,
+      "max": 36.0
+    }
+  },
+  "hygiene_risk_distribution": {
+    "Medium": 410,
+    "Low": 313,
+    "High": 272
+  },
+  "hygiene_risk_distribution_pct": {
+    "Medium": 41.2,
+    "Low": 31.5,
+    "High": 27.3
+  },
+  "avg_cleanliness_by_location": {
+    "Sitabuldi": 6.09,
+    "Sadar": 6.25,
+    "Civil Lines": 6.36,
+    "Dharampeth": 6.38,
+    "Wardha Road": 6.46,
+    "Hingna": 6.47,
+    "Nagpur Central": 6.52,
+    "Mihan": 6.53,
+    "Kamptee Road": 6.54,
+    "Manish Nagar": 6.62
+  },
+  "avg_complaints_by_location": {
+    "Sitabuldi": 5.0,
+    "Sadar": 4.64,
+    "Wardha Road": 4.64,
+    "Dharampeth": 4.51,
+    "Hingna": 4.51,
+    "Civil Lines": 4.47,
+    "Mihan": 4.37,
+    "Nagpur Central": 4.23,
+    "Manish Nagar": 4.22,
+    "Kamptee Road": 4.21
+  },
+  "avg_cleanliness_by_facility_type": {
+    "Public Washroom": 6.29,
+    "Office Washroom": 6.4,
+    "School Washroom": 6.42,
+    "Hospital Washroom": 6.44,
+    "Transit Washroom": 6.45,
+    "Mall Washroom": 6.55
+  },
+  "avg_hours_since_cleaning_by_risk": {
+    "High": 10.06,
+    "Low": 5.81,
+    "Medium": 7.34
+  },
+  "correlation_matrix": {
+    "cleanliness_score": {
+      "cleanliness_score": 1.0,
+      "odor_score": -0.77,
+      "waste_level": -0.76,
+      "footfall": 0.0,
+      "complaints": -0.66,
+      "hours_since_cleaning": -0.03
+    },
+    "odor_score": {
+      "cleanliness_score": -0.77,
+      "odor_score": 1.0,
+      "waste_level": 0.6,
+      "footfall": 0.0,
+      "complaints": 0.59,
+      "hours_since_cleaning": 0.06
+    },
+    "waste_level": {
+      "cleanliness_score": -0.76,
+      "odor_score": 0.6,
+      "waste_level": 1.0,
+      "footfall": 0.01,
+      "complaints": 0.6,
+      "hours_since_cleaning": 0.0
+    },
+    "footfall": {
+      "cleanliness_score": 0.0,
+      "odor_score": 0.0,
+      "waste_level": 0.01,
+      "footfall": 1.0,
+      "complaints": 0.1,
+      "hours_since_cleaning": -0.03
+    },
+    "complaints": {
+      "cleanliness_score": -0.66,
+      "odor_score": 0.59,
+      "waste_level": 0.6,
+      "footfall": 0.1,
+      "complaints": 1.0,
+      "hours_since_cleaning": -0.01
+    },
+    "hours_since_cleaning": {
+      "cleanliness_score": -0.03,
+      "odor_score": 0.06,
+      "waste_level": 0.0,
+      "footfall": -0.03,
+      "complaints": -0.01,
+      "hours_since_cleaning": 1.0
+    }
+  },
+  "cleanliness_by_water_availability": {
+    "No": 6.12,
+    "Yes": 6.46
+  },
+  "high_risk_pct_by_water_availability": {
+    "No": 63.6,
+    "Yes": 22.5
+  }
+}

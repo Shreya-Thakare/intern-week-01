@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Day 9 · Facility Inspection Dashboard</title>
+  <style>
+    :root {
+      --bg: #070b14;
+      --card: #121a2b;
+      --elevated: #0e1524;
+      --border: #243044;
+      --border-soft: #1a2436;
+      --text: #eef3fb;
+      --muted: #93a4bf;
+      --dim: #64748b;
+      --accent: #3b82f6;
+      --accent-soft: rgba(59, 130, 246, 0.15);
+      --green: #22c55e;
+      --green-soft: rgba(34, 197, 94, 0.15);
+      --red: #ef4444;
+      --red-soft: rgba(239, 68, 68, 0.15);
+      --amber: #f59e0b;
+      --amber-soft: rgba(245, 158, 11, 0.15);
+      --radius: 16px;
+      --shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+      font-family: "Segoe UI", Inter, system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      background:
+        radial-gradient(ellipse 70% 45% at 12% -8%, rgba(59, 130, 246, 0.16), transparent 55%),
+        radial-gradient(ellipse 45% 30% at 95% 5%, rgba(167, 139, 250, 0.1), transparent 50%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .shell { max-width: 1200px; margin: 0 auto; padding: 1.5rem 1.15rem 3rem; }
+
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;
+    }
+    .brand { display: flex; align-items: center; gap: 0.9rem; }
+    .brand-mark {
+      width: 48px; height: 48px; border-radius: 14px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      display: grid; place-items: center; font-weight: 800; font-size: 1.1rem;
+      box-shadow: 0 0 28px rgba(59, 130, 246, 0.4);
+    }
+    .brand small {
+      display: block; color: var(--dim); font-size: 0.68rem;
+      letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700;
+    }
+    .brand h1 { margin: 0.1rem 0 0; font-size: 1.4rem; font-weight: 750; letter-spacing: -0.02em; }
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 0.8rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600;
+      background: var(--card); border: 1px solid var(--border); color: var(--muted);
+    }
+    .status-pill .dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--amber);
+      box-shadow: 0 0 8px var(--amber);
+    }
+    .status-pill.online .dot { background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+    .metrics {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.9rem;
+      margin-bottom: 1.15rem;
+    }
+    .metric {
+      background: linear-gradient(160deg, #152033, #101828);
+      border: 1px solid var(--border-soft); border-radius: var(--radius);
+      padding: 1.1rem 1.15rem; position: relative; overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .metric::after {
+      content: ""; position: absolute; right: -18%; bottom: -40%;
+      width: 100px; height: 100px; border-radius: 50%; opacity: 0.45;
+    }
+    .metric:nth-child(1)::after { background: rgba(59,130,246,.22); }
+    .metric:nth-child(2)::after { background: rgba(34,197,94,.18); }
+    .metric:nth-child(3)::after { background: rgba(245,158,11,.18); }
+    .metric:nth-child(4)::after { background: rgba(239,68,68,.16); }
+    .metric label { display: block; color: var(--muted); font-size: 0.78rem; margin-bottom: 0.25rem; }
+    .metric .value { font-size: 1.55rem; font-weight: 750; letter-spacing: -0.03em; }
+    .metric .sub { color: var(--dim); font-size: 0.72rem; margin-top: 0.2rem; }
+
+    .grid-main {
+      display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 1.1rem;
+      margin-bottom: 1.1rem;
+    }
+    .grid-bottom {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem;
+    }
+    .panel {
+      background: linear-gradient(180deg, #141d2e, #101827);
+      border: 1px solid var(--border-soft); border-radius: var(--radius);
+      padding: 1.15rem; box-shadow: var(--shadow);
+    }
+    .panel-head {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.95rem;
+    }
+    .panel-head h2 { margin: 0; font-size: 1rem; font-weight: 700; }
+    .tag {
+      font-size: 0.68rem; font-weight: 650; color: var(--dim);
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+
+    .toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.85rem; }
+    .toolbar input, .toolbar select, .field input, .field select, .field textarea {
+      background: #0b1220; border: 1px solid var(--border); color: var(--text);
+      border-radius: 10px; padding: 0.55rem 0.75rem; font: inherit; outline: none;
+    }
+    .toolbar input { flex: 1; min-width: 160px; }
+    .toolbar input:focus, .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left; color: var(--dim); font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      padding: 0.5rem 0.4rem; border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 0.7rem 0.4rem; border-bottom: 1px solid var(--border-soft);
+      font-size: 0.9rem; vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: 0; }
+    tbody tr { cursor: pointer; transition: background 0.12s; }
+    tbody tr:hover td, tbody tr.active td { background: rgba(59, 130, 246, 0.07); }
+
+    .badge {
+      display: inline-flex; align-items: center; padding: 0.18rem 0.5rem;
+      border-radius: 999px; font-size: 0.72rem; font-weight: 700;
+    }
+    .badge.good { background: var(--green-soft); color: #86efac; border: 1px solid rgba(34,197,94,.3); }
+    .badge.attention { background: var(--amber-soft); color: #fcd34d; border: 1px solid rgba(245,158,11,.3); }
+    .badge.poor { background: var(--red-soft); color: #fca5a5; border: 1px solid rgba(239,68,68,.3); }
+
+    .score-bar {
+      height: 6px; border-radius: 999px; background: #0b1220;
+      border: 1px solid var(--border-soft); overflow: hidden; margin-top: 0.3rem; max-width: 90px;
+    }
+    .score-fill {
+      height: 100%; border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #3b82f6);
+    }
+
+    .form { display: grid; gap: 0.65rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; }
+    .field { display: grid; gap: 0.28rem; font-size: 0.78rem; color: var(--muted); font-weight: 500; }
+    .field.full { grid-column: 1 / -1; }
+    textarea { resize: vertical; min-height: 70px; }
+
+    .btn {
+      border: 0; border-radius: 11px; padding: 0.65rem 1rem;
+      font-weight: 650; font-size: 0.9rem; cursor: pointer; font-family: inherit;
+      background: linear-gradient(135deg, #2563eb, #4f46e5); color: #fff;
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+    }
+    .btn:hover { filter: brightness(1.07); }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-ghost {
+      background: transparent; color: var(--muted); border: 1px solid var(--border);
+      box-shadow: none;
+    }
+
+    .empty {
+      text-align: center; color: var(--dim); padding: 1.5rem 0.5rem; font-size: 0.9rem;
+    }
+    .detail-box {
+      background: var(--elevated); border: 1px solid var(--border-soft);
+      border-radius: 12px; padding: 0.85rem 0.95rem; margin-bottom: 0.85rem;
+    }
+    .detail-box h3 { margin: 0 0 0.35rem; font-size: 1.05rem; }
+    .detail-meta { color: var(--muted); font-size: 0.85rem; }
+
+    .bar-chart { display: grid; gap: 0.5rem; }
+    .bar-row {
+      display: grid; grid-template-columns: 120px 1fr 44px; gap: 0.45rem; align-items: center;
+    }
+    .bar-row span { font-size: 0.78rem; color: var(--muted); }
+    .bar-row .n { text-align: right; color: var(--text); font-weight: 600; }
+    .track {
+      height: 9px; border-radius: 999px; background: #0b1220;
+      border: 1px solid var(--border-soft); overflow: hidden;
+    }
+    .fill {
+      height: 100%; border-radius: 999px; width: 0;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      transition: width 0.6s ease;
+    }
+    .fill.warn { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+
+    .toast {
+      margin-top: 0.65rem; font-size: 0.85rem; min-height: 1.2em;
+    }
+    .toast.ok { color: #86efac; }
+    .toast.err { color: #fca5a5; }
+
+    footer {
+      margin-top: 1.75rem; text-align: center; color: var(--dim); font-size: 0.75rem;
+    }
+
+
+    .alert-banner {
+      display: none;
+      align-items: flex-start;
+      gap: 0.85rem;
+      margin-bottom: 1.1rem;
+      padding: 0.9rem 1rem;
+      border-radius: 14px;
+      background: linear-gradient(90deg, rgba(239,68,68,0.12), rgba(245,158,11,0.08));
+      border: 1px solid rgba(239,68,68,0.35);
+    }
+    .alert-banner.show { display: flex; }
+    .alert-banner strong { display: block; margin-bottom: 0.2rem; color: #fca5a5; }
+    .alert-banner p { margin: 0; color: var(--muted); font-size: 0.88rem; }
+    .alert-icon {
+      width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+      display: grid; place-items: center;
+      background: rgba(239,68,68,0.2); color: #fca5a5; font-weight: 800;
+    }
+    .status-cards {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.55rem;
+      margin-bottom: 0.85rem;
+    }
+    .status-card {
+      background: var(--elevated); border: 1px solid var(--border-soft);
+      border-radius: 12px; padding: 0.75rem; text-align: center;
+    }
+    .status-card .num { font-size: 1.35rem; font-weight: 750; }
+    .status-card .lbl { font-size: 0.72rem; color: var(--dim); margin-top: 0.15rem; }
+    .status-card.good .num { color: #86efac; }
+    .status-card.attention .num { color: #fcd34d; }
+    .status-card.poor .num { color: #fca5a5; }
+    .activity-list { display: grid; gap: 0.55rem; max-height: 280px; overflow-y: auto; }
+    .activity-item {
+      display: grid; grid-template-columns: auto 1fr auto; gap: 0.65rem;
+      align-items: start; padding: 0.65rem 0.7rem;
+      background: var(--elevated); border: 1px solid var(--border-soft);
+      border-radius: 10px; font-size: 0.85rem;
+    }
+    .activity-item .when { color: var(--dim); font-size: 0.72rem; white-space: nowrap; }
+    .reco {
+      margin-top: 0.85rem; padding: 0.75rem 0.85rem;
+      border-radius: 12px; background: rgba(59,130,246,0.08);
+      border: 1px solid rgba(59,130,246,0.25); font-size: 0.85rem; color: var(--muted);
+    }
+    .reco strong { color: #93c5fd; }
+    .grid-three {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.1rem;
+    }
+    @media (max-width: 960px) {
+      .grid-three { grid-template-columns: 1fr; }
+      .status-cards { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 960px) {
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .grid-main, .grid-bottom { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) {
+      .metrics { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .bar-row { grid-template-columns: 90px 1fr 36px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">F</div>
+        <div>
+          <small>Day 09 · Angular concepts · Standalone demo</small>
+          <h1>Facility Inspection Dashboard</h1>
+        </div>
+      </div>
+      <div id="apiStatus" class="status-pill">
+        <span class="dot"></span>
+        <span id="apiStatusText">Checking API…</span>
+      </div>
+    </header>
+
+    <section class="metrics">
+      <div class="metric">
+        <label>Facilities</label>
+        <div class="value" id="mFacilities">0</div>
+        <div class="sub">Monitored sites</div>
+      </div>
+      <div class="metric">
+        <label>Avg cleanliness</label>
+        <div class="value" id="mAvg">0</div>
+        <div class="sub">Score out of 10</div>
+      </div>
+      <div class="metric">
+        <label>Needs attention</label>
+        <div class="value" id="mAttention">0</div>
+        <div class="sub">Score &lt; 6.5</div>
+      </div>
+      <div class="metric">
+        <label>Inspections logged</label>
+        <div class="value" id="mInspections">0</div>
+        <div class="sub">All facilities</div>
+      </div>
+    </section>
+
+    <div class="alert-banner" id="alertBanner">
+      <div class="alert-icon">!</div>
+      <div>
+        <strong id="alertTitle">Attention required</strong>
+        <p id="alertText"></p>
+      </div>
+    </div>
+
+    <div class="grid-main">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Facilities</h2>
+          <span class="tag" id="visibleCount">0 shown</span>
+        </div>
+        <div class="toolbar">
+          <input id="searchInput" type="search" placeholder="Search name or location…" />
+          <select id="sortSelect">
+            <option value="name">Sort: Name</option>
+            <option value="score">Sort: Score</option>
+          </select>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Facility</th>
+                <th>Location</th>
+                <th>Score</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="facilityRows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Facility detail &amp; new inspection</h2>
+          <span class="tag">Reactive form style</span>
+        </div>
+        <div id="detailEmpty" class="empty">Select a facility from the list to view history and log an inspection.</div>
+        <div id="detailPanel" hidden>
+          <div class="detail-box">
+            <h3 id="detailName">—</h3>
+            <div class="detail-meta" id="detailMeta">—</div>
+          </div>
+
+          <h3 style="margin:0 0 .55rem;font-size:.78rem;color:var(--dim);text-transform:uppercase;letter-spacing:.06em">Log inspection</h3>
+          <form class="form" id="inspectForm">
+            <div class="form-row">
+              <label class="field">Date
+                <input name="inspection_date" type="date" required />
+              </label>
+              <label class="field">Status
+                <select name="status" required>
+                  <option value="Good">Good</option>
+                  <option value="Needs Attention">Needs Attention</option>
+                  <option value="Poor">Poor</option>
+                </select>
+              </label>
+            </div>
+            <div class="form-row">
+              <label class="field">Cleanliness (0–10)
+                <input name="cleanliness_score" type="number" min="0" max="10" step="0.1" value="7" required />
+              </label>
+              <label class="field">Odor (0–10)
+                <input name="odor_score" type="number" min="0" max="10" step="0.1" value="3" required />
+              </label>
+            </div>
+            <div class="form-row">
+              <label class="field">Waste level (0–10)
+                <input name="waste_level" type="number" min="0" max="10" step="0.1" value="3" required />
+              </label>
+              <label class="field">Remarks
+                <input name="remarks" type="text" placeholder="Optional notes" />
+              </label>
+            </div>
+            <button class="btn" type="submit" id="submitBtn">Save inspection</button>
+            <p class="toast" id="formToast"></p>
+          </form>
+        </div>
+      </section>
+    </div>
+
+    <div class="grid-bottom">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Cleanliness by facility</h2>
+          <span class="tag">Live chart</span>
+        </div>
+        <div class="bar-chart" id="scoreBars"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Inspection history</h2>
+          <span class="tag" id="historyTitle">Select a facility</span>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Clean</th>
+                <th>Odor</th>
+                <th>Waste</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="historyRows">
+              <tr><td colspan="5" class="empty">No history yet</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <footer>Day 9 · Facility Inspection Dashboard · Angular concepts in a standalone HTML demo</footer>
+  </div>
+
+  <script>
+    const API = 'http://localhost:8000/api';
+
+    const seedFacilities = [
+      { id: 1, name: 'Central Washroom', location: 'Nagpur Central', cleanliness_score: 5.5, water_availability: true },
+      { id: 2, name: 'Cafeteria', location: 'Dharampeth', cleanliness_score: 8.2, water_availability: true },
+      { id: 3, name: 'Library Restroom', location: 'Sitabuldi', cleanliness_score: 6.8, water_availability: false },
+      { id: 4, name: 'Station Platform WC', location: 'Nagpur Station', cleanliness_score: 4.1, water_availability: true },
+      { id: 5, name: 'Mall Food Court', location: 'Empress Mall', cleanliness_score: 7.4, water_availability: true },
+      { id: 6, name: 'Park Public Toilet', location: 'Seminary Hills', cleanliness_score: 5.9, water_availability: true },
+    ];
+
+    const seedHistory = {
+      1: [
+        { id: 1, facility_id: 1, inspection_date: '2026-09-20', cleanliness_score: 5, odor_score: 7, waste_level: 6, status: 'Needs Attention', remarks: 'Cleaning needed' },
+        { id: 11, facility_id: 1, inspection_date: '2026-09-15', cleanliness_score: 6, odor_score: 5, waste_level: 4, status: 'Needs Attention', remarks: 'Improving' },
+      ],
+      2: [
+        { id: 2, facility_id: 2, inspection_date: '2026-09-20', cleanliness_score: 8, odor_score: 2, waste_level: 2, status: 'Good', remarks: 'Maintained' },
+      ],
+      3: [
+        { id: 3, facility_id: 3, inspection_date: '2026-09-21', cleanliness_score: 6, odor_score: 4, waste_level: 5, status: 'Needs Attention', remarks: 'Monitor odor' },
+      ],
+      4: [
+        { id: 4, facility_id: 4, inspection_date: '2026-09-19', cleanliness_score: 4, odor_score: 8, waste_level: 7, status: 'Poor', remarks: 'Urgent cleaning' },
+      ],
+      5: [
+        { id: 5, facility_id: 5, inspection_date: '2026-09-22', cleanliness_score: 7, odor_score: 3, waste_level: 3, status: 'Good', remarks: 'OK' },
+      ],
+      6: [
+        { id: 6, facility_id: 6, inspection_date: '2026-09-18', cleanliness_score: 5.5, odor_score: 6, waste_level: 5, status: 'Needs Attention', remarks: 'Peak hours load' },
+      ],
+    };
+
+    let facilities = structuredClone(seedFacilities);
+    let historyMap = structuredClone(seedHistory);
+    let selectedId = null;
+    let query = '';
+    let sortKey = 'name';
+
+    function statusBadge(score) {
+      if (score >= 7) return '<span class="badge good">Good</span>';
+      if (score >= 5) return '<span class="badge attention">Needs Attention</span>';
+      return '<span class="badge poor">Poor</span>';
+    }
+
+    function statusClass(status) {
+      if (status === 'Good') return 'good';
+      if (status === 'Poor') return 'poor';
+      return 'attention';
+    }
+
+
+    function statusCounts() {
+      let good = 0, att = 0, poor = 0;
+      facilities.forEach((f) => {
+        const s = Number(f.cleanliness_score);
+        if (s >= 7) good++;
+        else if (s >= 5) att++;
+        else poor++;
+      });
+      return { good, att, poor };
+    }
+
+    function updateAlerts() {
+      const poor = facilities.filter((f) => Number(f.cleanliness_score) < 5);
+      const att = facilities.filter((f) => {
+        const s = Number(f.cleanliness_score);
+        return s >= 5 && s < 6.5;
+      });
+      const noWater = facilities.filter((f) => !f.water_availability);
+      const banner = document.getElementById('alertBanner');
+      if (poor.length || att.length || noWater.length) {
+        banner.classList.add('show');
+        const parts = [];
+        if (poor.length) parts.push(poor.map((f) => f.name).join(', ') + ' (poor)');
+        if (att.length) parts.push(att.length + ' need attention');
+        if (noWater.length) parts.push(noWater.map((f) => f.name).join(', ') + ' (no water)');
+        document.getElementById('alertTitle').textContent =
+          poor.length ? 'Critical facilities detected' : 'Inspection attention required';
+        document.getElementById('alertText').textContent = parts.join(' · ');
+      } else {
+        banner.classList.remove('show');
+      }
+      const sc = statusCounts();
+      document.getElementById('stGood').textContent = sc.good;
+      document.getElementById('stAtt').textContent = sc.att;
+      document.getElementById('stPoor').textContent = sc.poor;
+    }
+
+    function recommendationFor(f) {
+      if (!f) return 'Select a facility for guidance.';
+      const s = Number(f.cleanliness_score);
+      if (s < 5) return 'Schedule deep cleaning within 24h and re-inspect.';
+      if (s < 6.5) return 'Increase cleaning frequency and check odor/waste levels.';
+      if (!f.water_availability) return 'Restore water supply before peak hours.';
+      return 'Maintain current schedule; re-check after peak footfall.';
+    }
+
+    function renderActivity() {
+      const items = [];
+      Object.entries(historyMap).forEach(([fid, list]) => {
+        const fac = facilities.find((f) => f.id === Number(fid));
+        (list || []).forEach((i) => {
+          items.push({
+            date: i.inspection_date,
+            facility: fac ? fac.name : 'Facility #' + fid,
+            status: i.status,
+            score: i.cleanliness_score,
+          });
+        });
+      });
+      items.sort((a, b) => String(b.date).localeCompare(String(a.date)));
+      const feed = document.getElementById('activityFeed');
+      if (!items.length) {
+        feed.innerHTML = '<div class="empty">No activity yet</div>';
+        return;
+      }
+      feed.innerHTML = items.slice(0, 8).map((it) => `
+        <div class="activity-item">
+          <span class="badge ${statusClass(it.status)}">${it.status}</span>
+          <div>
+            <strong>${it.facility}</strong>
+            <div style="color:var(--muted);font-size:0.78rem">Score ${it.score}</div>
+          </div>
+          <span class="when">${it.date}</span>
+        </div>`).join('');
+    }
+
+    function metrics() {
+      const n = facilities.length;
+      const avg = n ? facilities.reduce((s, f) => s + Number(f.cleanliness_score), 0) / n : 0;
+      const attention = facilities.filter((f) => Number(f.cleanliness_score) < 6.5).length;
+      const inspections = Object.values(historyMap).reduce((s, list) => s + list.length, 0);
+      document.getElementById('mFacilities').textContent = n;
+      document.getElementById('mAvg').textContent = avg.toFixed(1);
+      document.getElementById('mAttention').textContent = attention;
+      document.getElementById('mInspections').textContent = inspections;
+    }
+
+    function visibleList() {
+      const q = query.trim().toLowerCase();
+      let list = facilities.filter((f) => {
+        if (!q) return true;
+        return f.name.toLowerCase().includes(q) || f.location.toLowerCase().includes(q);
+      });
+      list = [...list].sort((a, b) => {
+        if (sortKey === 'score') return Number(b.cleanliness_score) - Number(a.cleanliness_score);
+        return a.name.localeCompare(b.name);
+      });
+      return list;
+    }
+
+    function renderTable() {
+      const list = visibleList();
+      document.getElementById('visibleCount').textContent = list.length + ' shown';
+      const tbody = document.getElementById('facilityRows');
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty">No facilities match your search.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map((f) => {
+        const pct = Math.min(100, Math.max(0, Number(f.cleanliness_score) * 10));
+        const active = f.id === selectedId ? 'active' : '';
+        return `<tr class="${active}" data-id="${f.id}">
+          <td><strong>${f.name}</strong></td>
+          <td style="color:var(--muted)">${f.location}</td>
+          <td>
+            <strong>${Number(f.cleanliness_score).toFixed(1)}</strong>
+            <div class="score-bar"><div class="score-fill" style="width:${pct}%"></div></div>
+          </td>
+          <td>${statusBadge(Number(f.cleanliness_score))}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function renderChart() {
+      const max = Math.max(...facilities.map((f) => Number(f.cleanliness_score)), 1);
+      const el = document.getElementById('scoreBars');
+      el.innerHTML = facilities
+        .slice()
+        .sort((a, b) => Number(b.cleanliness_score) - Number(a.cleanliness_score))
+        .map((f) => {
+          const score = Number(f.cleanliness_score);
+          const pct = Math.round((score / 10) * 100);
+          const warn = score < 6.5 ? 'warn' : '';
+          return `<div class="bar-row">
+            <span title="${f.name}">${f.name}</span>
+            <div class="track"><div class="fill ${warn}" data-w="${pct}%"></div></div>
+            <span class="n">${score.toFixed(1)}</span>
+          </div>`;
+        }).join('');
+      requestAnimationFrame(() => {
+        el.querySelectorAll('.fill').forEach((node) => {
+          node.style.width = node.getAttribute('data-w');
+        });
+      });
+    }
+
+    function renderHistory(facilityId) {
+      const rows = historyMap[facilityId] || [];
+      document.getElementById('historyTitle').textContent =
+        rows.length ? rows.length + ' records' : 'No records';
+      const tbody = document.getElementById('historyRows');
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty">No inspection history</td></tr>';
+        return;
+      }
+      tbody.innerHTML = rows
+        .slice()
+        .sort((a, b) => String(b.inspection_date).localeCompare(String(a.inspection_date)))
+        .map((i) => `<tr>
+          <td>${i.inspection_date}</td>
+          <td>${i.cleanliness_score}</td>
+          <td>${i.odor_score}</td>
+          <td>${i.waste_level}</td>
+          <td><span class="badge ${statusClass(i.status)}">${i.status}</span></td>
+        </tr>`).join('');
+    }
+
+    function selectFacility(id) {
+      selectedId = id;
+      const f = facilities.find((x) => x.id === id);
+      if (!f) return;
+      document.getElementById('detailEmpty').hidden = true;
+      document.getElementById('detailPanel').hidden = false;
+      document.getElementById('detailName').textContent = f.name;
+      document.getElementById('detailMeta').textContent =
+        `${f.location} · Score ${Number(f.cleanliness_score).toFixed(1)} · Water ${f.water_availability ? 'Available' : 'Unavailable'}`;
+      const dateInput = document.querySelector('#inspectForm [name="inspection_date"]');
+      if (dateInput && !dateInput.value) {
+        dateInput.value = new Date().toISOString().slice(0, 10);
+      }
+      document.getElementById('formToast').textContent = '';
+      const reco = document.getElementById('recoText');
+      if (reco) reco.textContent = recommendationFor(f);
+      renderTable();
+      renderHistory(id);
+    }
+
+    function renderAll() {
+      metrics();
+      renderTable();
+      renderChart();
+      if (selectedId) renderHistory(selectedId);
+    }
+
+    document.getElementById('facilityRows').addEventListener('click', (e) => {
+      const tr = e.target.closest('tr[data-id]');
+      if (!tr) return;
+      selectFacility(Number(tr.dataset.id));
+    });
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      query = e.target.value;
+      renderTable();
+    });
+
+    document.getElementById('sortSelect').addEventListener('change', (e) => {
+      sortKey = e.target.value;
+      renderTable();
+    });
+
+    document.getElementById('inspectForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!selectedId) return;
+      const form = Object.fromEntries(new FormData(e.currentTarget));
+      const payload = {
+        id: Date.now(),
+        facility_id: selectedId,
+        inspection_date: form.inspection_date,
+        cleanliness_score: Number(form.cleanliness_score),
+        odor_score: Number(form.odor_score),
+        waste_level: Number(form.waste_level),
+        status: form.status,
+        remarks: form.remarks || '',
+      };
+
+      const toast = document.getElementById('formToast');
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      toast.className = 'toast';
+      toast.textContent = 'Saving…';
+
+      try {
+        const res = await fetch(`${API}/inspections`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error('API unavailable');
+      } catch {
+        /* offline fallback — still record locally */
+      }
+
+      if (!historyMap[selectedId]) historyMap[selectedId] = [];
+      historyMap[selectedId].unshift(payload);
+
+      // Update facility score from latest inspection
+      const fac = facilities.find((f) => f.id === selectedId);
+      if (fac) fac.cleanliness_score = payload.cleanliness_score;
+
+      toast.className = 'toast ok';
+      toast.textContent = 'Inspection saved.';
+      btn.disabled = false;
+      renderAll();
+      renderHistory(selectedId);
+    });
+
+    (async function init() {
+      const pill = document.getElementById('apiStatus');
+      const text = document.getElementById('apiStatusText');
+      try {
+        const res = await fetch(`${API}/facilities`, { signal: AbortSignal.timeout(1500) });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length) facilities = data;
+          pill.classList.add('online');
+          text.textContent = 'API online';
+        } else throw new Error('offline');
+      } catch {
+        pill.classList.remove('online');
+        text.textContent = 'Offline · seed dataset';
+      }
+      renderAll();
+      // Auto-select first facility for immediate effective result
+      if (facilities[0]) selectFacility(facilities[0].id);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Day 4 · ML Prediction</title>
+  <style>
+    :root{font-family:Inter,system-ui,sans-serif;--bg:#070b14;--border:#243044;--text:#eef3fb;--muted:#93a4bf;--dim:#64748b;--accent:#3b82f6}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--text);background:radial-gradient(ellipse 70% 40% at 15% -10%,rgba(59,130,246,.16),transparent),var(--bg)}
+    .shell{max-width:900px;margin:0 auto;padding:1.75rem 1.2rem 3rem}
+    a.back{color:var(--accent);text-decoration:none;font-size:.9rem;font-weight:600}
+    h1{margin:.75rem 0 .35rem;font-size:1.55rem;letter-spacing:-.02em}
+    .sub{color:var(--muted);margin:0 0 1.25rem}
+    .panel{background:linear-gradient(160deg,#152033,#101828);border:1px solid var(--border);border-radius:14px;padding:1.15rem 1.2rem;margin-bottom:1rem}
+    .panel h2{margin:0 0 .75rem;font-size:1rem}
+    ul{margin:.25rem 0 0;padding-left:1.15rem;color:var(--muted)} li{margin:.35rem 0}
+    pre{background:#0b1220;border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem;overflow-x:auto;color:#cbd5e1;font-size:.85rem;line-height:1.45}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:.85rem}
+    .stat{background:#0e1524;border:1px solid var(--border);border-radius:12px;padding:.9rem}
+    .stat span{display:block;color:var(--dim);font-size:.75rem;margin-bottom:.2rem}
+    .stat strong{font-size:1.1rem}
+    .tag{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#93c5fd;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.25);padding:.15rem .5rem;border-radius:999px;margin-bottom:.5rem}
+    table{width:100%;border-collapse:collapse;font-size:.9rem}
+    th,td{text-align:left;padding:.45rem .3rem;border-bottom:1px solid #1c2738;color:var(--muted)}
+    th{color:var(--dim);font-size:.72rem;text-transform:uppercase}
+    @media(max-width:700px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <a class="back" href="../index.html">← All days</a>
+    <div class="tag">scikit-learn · ML</div>
+    <h1>Day 4 · Hygiene Risk Prediction</h1>
+    <p class="sub">Train and compare models to classify High vs Low hygiene risk.</p>
+    <div class="grid">
+      <div class="stat"><span>Models</span><strong>LogReg + Random Forest</strong></div>
+      <div class="stat"><span>Metric</span><strong>F1 score selection</strong></div>
+    </div>
+    <div class="panel" style="margin-top:1rem">
+      <h2>Pipeline</h2>
+      <ul>
+        <li>Dataset → cleaning → EDA → features → train/test split</li>
+        <li>Train Logistic Regression and Random Forest</li>
+        <li>Evaluate, select best model, save predictions</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h2>Features used</h2>
+      <table>
+        <tr><th>Input</th><th>Notes</th></tr>
+        <tr><td>cleanliness, odor, waste</td><td>Scores 0–10</td></tr>
+        <tr><td>complaints, footfall</td><td>Counts / volume</td></tr>
+        <tr><td>hours_since_cleaning</td><td>Delay signal</td></tr>
+        <tr><td>cleaning_delay_ratio</td><td>Engineered feature</td></tr>
+      </table>
+    </div>
+    <div class="panel">
+      <h2>Run locally</h2>
+      <pre>cd day-04
+python -m pip install -r requirements.txt
+python run_project.py</pre>
+    </div>
+  </div>
+</body>
+</html>

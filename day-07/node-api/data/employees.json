@@ -1,0 +1,14 @@
+[
+  { "id": 1, "name": "Asha Patil", "email": "asha@example.com", "department": "Engineering", "position": "Developer", "salary": 65000 },
+  { "id": 2, "name": "Ravi Shah", "email": "ravi@example.com", "department": "HR", "position": "Executive", "salary": 48000 },
+  { "id": 3, "name": "Neha Joshi", "email": "neha@example.com", "department": "Engineering", "position": "QA Engineer", "salary": 58000 },
+  { "id": 4, "name": "Karan Mehta", "email": "karan@example.com", "department": "Finance", "position": "Analyst", "salary": 52000 },
+  { "id": 5, "name": "Priya Deshmukh", "email": "priya@example.com", "department": "Operations", "position": "Coordinator", "salary": 45000 },
+  { "id": 6, "name": "Amit Kulkarni", "email": "amit@example.com", "department": "Engineering", "position": "Tech Lead", "salary": 92000 },
+  { "id": 7, "name": "Sneha Rao", "email": "sneha@example.com", "department": "Finance", "position": "Manager", "salary": 78000 },
+  { "id": 8, "name": "Vikram Singh", "email": "vikram@example.com", "department": "Sales", "position": "Executive", "salary": 42000 },
+  { "id": 9, "name": "Ananya Iyer", "email": "ananya@example.com", "department": "Engineering", "position": "Intern", "salary": 28000 },
+  { "id": 10, "name": "Rohit Nair", "email": "rohit@example.com", "department": "Sales", "position": "Manager", "salary": 70000 },
+  { "id": 11, "name": "Meera Kapoor", "email": "meera@example.com", "department": "HR", "position": "Manager", "salary": 72000 },
+  { "id": 12, "name": "Arjun Verma", "email": "arjun@example.com", "department": "Operations", "position": "Supervisor", "salary": 55000 }
+]

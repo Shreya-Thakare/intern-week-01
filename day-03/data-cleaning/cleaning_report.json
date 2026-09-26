@@ -1,0 +1,101 @@
+{
+  "raw_shape": [
+    1000,
+    12
+  ],
+  "missing_values": {
+    "cleanliness_score": 5,
+    "waste_level": 3,
+    "water_availability": 2
+  },
+  "duplicates": {
+    "duplicate_rows_full": 5,
+    "duplicate_facility_ids": 5,
+    "duplicate_facility_id_list": [
+      "F0021",
+      "F0086",
+      "F0251",
+      "F0445",
+      "F0701"
+    ]
+  },
+  "invalid_values": {
+    "cleanliness_score_out_of_0_10_range": 0,
+    "odor_score_out_of_0_10_range": 0,
+    "waste_level_out_of_0_100_range": 0,
+    "negative_footfall": 0,
+    "negative_complaints": 0,
+    "negative_hours_since_cleaning": 0
+  },
+  "outliers_iqr": {
+    "cleanliness_score": {
+      "q1": 5.2,
+      "q3": 7.6,
+      "iqr": 2.4,
+      "lower_bound": 1.6,
+      "upper_bound": 11.2,
+      "outlier_count": 2
+    },
+    "odor_score": {
+      "q1": 3.1,
+      "q3": 6.12,
+      "iqr": 3.02,
+      "lower_bound": -1.44,
+      "upper_bound": 10.66,
+      "outlier_count": 0
+    },
+    "waste_level": {
+      "q1": 29.1,
+      "q3": 58.9,
+      "iqr": 29.8,
+      "lower_bound": -15.6,
+      "upper_bound": 103.6,
+      "outlier_count": 0
+    },
+    "footfall": {
+      "q1": 304.0,
+      "q3": 582.25,
+      "iqr": 278.25,
+      "lower_bound": -113.38,
+      "upper_bound": 999.62,
+      "outlier_count": 3
+    },
+    "complaints": {
+      "q1": 3.0,
+      "q3": 6.0,
+      "iqr": 3.0,
+      "lower_bound": -1.5,
+      "upper_bound": 10.5,
+      "outlier_count": 13
+    },
+    "hours_since_cleaning": {
+      "q1": 2.5,
+      "q3": 10.2,
+      "iqr": 7.7,
+      "lower_bound": -9.05,
+      "upper_bound": 21.75,
+      "outlier_count": 63
+    }
+  },
+  "cleaning_actions": {
+    "dropped_duplicate_rows": 5,
+    "imputed": {
+      "cleanliness_score": {
+        "count": 5,
+        "filled_with_median": 6.4
+      },
+      "waste_level": {
+        "count": 3,
+        "filled_with_median": 44.0
+      },
+      "water_availability": {
+        "count": 2,
+        "filled_with_mode": "Yes"
+      }
+    }
+  },
+  "clean_shape": [
+    995,
+    13
+  ]
+}

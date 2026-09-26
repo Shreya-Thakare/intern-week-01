@@ -1,0 +1,92 @@
+<main class="page">
+  <header class="header">
+    <div>
+      <small>DAY 09 • ANGULAR + API INTEGRATION</small>
+      <h1>Facility Inspection Dashboard</h1>
+    </div>
+  </header>
+
+  <section class="metrics">
+    <div><span>Facilities</span><b>{{ facilities.length }}</b></div>
+    <div><span>Average cleanliness</span><b>{{ average | number: '1.1-1' }}</b></div>
+    <div><span>Needs attention (&lt;6)</span><b>{{ needsAttention }}</b></div>
+  </section>
+
+  <section class="panel">
+    <div class="toolbar">
+      <input
+        type="search"
+        placeholder="Search facility or location"
+        [value]="query"
+        (input)="query = $any($event.target).value"
+      />
+      <select [value]="sort" (change)="sort = $any($event.target).value">
+        <option value="name">Sort: name</option>
+        <option value="score">Sort: cleanliness</option>
+      </select>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Facility</th>
+          <th>Location</th>
+          <th>Cleanliness</th>
+          <th>Water</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let f of visible">
+          <td>{{ f.name }}</td>
+          <td>{{ f.location }}</td>
+          <td>{{ f.cleanliness_score }}</td>
+          <td>{{ f.water_availability ? 'Available' : 'Unavailable' }}</td>
+          <td><button type="button" (click)="select(f)">Details</button></td>
+        </tr>
+        <tr *ngIf="!visible.length">
+          <td colspan="5">No facilities match your search.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section *ngIf="selected" class="panel details">
+    <h2>{{ selected.name }}</h2>
+    <p class="muted">{{ selected.location }} · cleanliness {{ selected.cleanliness_score }}</p>
+
+    <h3>Inspection history</h3>
+    <ul class="history" *ngIf="history.length; else emptyHistory">
+      <li *ngFor="let h of history">
+        <strong>{{ h.inspection_date }}</strong>
+        — {{ h.status }}
+        (clean {{ h.cleanliness_score }}, odor {{ h.odor_score }}, waste {{ h.waste_level }})
+        <span *ngIf="h.remarks"> · {{ h.remarks }}</span>
+      </li>
+    </ul>
+    <ng-template #emptyHistory>
+      <p class="muted">No inspection history yet.</p>
+    </ng-template>
+
+    <h3>Add inspection</h3>
+    <form class="form" [formGroup]="form" (ngSubmit)="submit()">
+      <label>Date <input type="date" formControlName="inspection_date" /></label>
+      <label>Cleanliness (0–10) <input type="number" min="0" max="10" step="0.1" formControlName="cleanliness_score" /></label>
+      <label>Odor (0–10) <input type="number" min="0" max="10" step="0.1" formControlName="odor_score" /></label>
+      <label>Waste (0–10) <input type="number" min="0" max="10" step="0.1" formControlName="waste_level" /></label>
+      <label>
+        Status
+        <select formControlName="status">
+          <option>Good</option>
+          <option>Needs Attention</option>
+          <option>Poor</option>
+        </select>
+      </label>
+      <label>Remarks <input formControlName="remarks" placeholder="Optional notes" /></label>
+      <button type="submit" [disabled]="form.invalid">Save inspection</button>
+    </form>
+
+    <p class="ok" *ngIf="message">{{ message }}</p>
+    <p class="error" *ngIf="error">{{ error }}</p>
+  </section>
+</main>

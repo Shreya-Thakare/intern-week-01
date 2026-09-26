@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Day 2 · Python Development</title>
+  <style>
+    :root{font-family:Inter,system-ui,sans-serif;--bg:#070b14;--border:#243044;--text:#eef3fb;--muted:#93a4bf;--dim:#64748b;--accent:#3b82f6}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--text);background:radial-gradient(ellipse 70% 40% at 15% -10%,rgba(59,130,246,.16),transparent),var(--bg)}
+    .shell{max-width:900px;margin:0 auto;padding:1.75rem 1.2rem 3rem}
+    a.back{color:var(--accent);text-decoration:none;font-size:.9rem;font-weight:600}
+    h1{margin:.75rem 0 .35rem;font-size:1.55rem;letter-spacing:-.02em}
+    .sub{color:var(--muted);margin:0 0 1.25rem}
+    .panel{background:linear-gradient(160deg,#152033,#101828);border:1px solid var(--border);border-radius:14px;padding:1.15rem 1.2rem;margin-bottom:1rem}
+    .panel h2{margin:0 0 .75rem;font-size:1rem}
+    ul{margin:.25rem 0 0;padding-left:1.15rem;color:var(--muted)} li{margin:.35rem 0}
+    pre{background:#0b1220;border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem;overflow-x:auto;color:#cbd5e1;font-size:.85rem;line-height:1.45}
+    .grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.85rem}
+    .stat{background:#0e1524;border:1px solid var(--border);border-radius:12px;padding:.9rem}
+    .stat span{display:block;color:var(--dim);font-size:.75rem;margin-bottom:.2rem}
+    .stat strong{font-size:1.05rem}
+    .tag{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#93c5fd;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.25);padding:.15rem .5rem;border-radius:999px;margin-bottom:.5rem}
+    @media(max-width:700px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <a class="back" href="../index.html">← All days</a>
+    <div class="tag">Python · OOP</div>
+    <h1>Day 2 · Python Development</h1>
+    <p class="sub">OOP student management system, topic exercises, and CSV analysis.</p>
+    <div class="grid">
+      <div class="stat"><span>Exercises</span><strong>Python practice</strong></div>
+      <div class="stat"><span>System</span><strong>CRUD + stats</strong></div>
+      <div class="stat"><span>Data</span><strong>CSV analysis</strong></div>
+    </div>
+    <div class="panel" style="margin-top:1rem">
+      <h2>Features</h2>
+      <ul>
+        <li>Student management: Add, Update, Delete, Search, Filter, Sort, Statistics</li>
+        <li>JSON persistence + exception handling</li>
+        <li>CSV analyzer for tabular data</li>
+        <li>Core Python: functions, classes, file handling</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h2>Folder</h2>
+      <pre>day-02/
+├── python-exercises/
+├── management-system/student_management.py
+└── csv-analysis/</pre>
+    </div>
+    <div class="panel">
+      <h2>Run locally</h2>
+      <pre>cd day-02/management-system
+python student_management.py
+
+cd day-02/csv-analysis
+python data_analyzer.py</pre>
+    </div>
+  </div>
+</body>
+</html>

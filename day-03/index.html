@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Day 3 · Data Analysis</title>
+  <style>
+    :root{font-family:Inter,system-ui,sans-serif;--bg:#070b14;--border:#243044;--text:#eef3fb;--muted:#93a4bf;--dim:#64748b;--accent:#3b82f6}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--text);background:radial-gradient(ellipse 70% 40% at 15% -10%,rgba(59,130,246,.16),transparent),var(--bg)}
+    .shell{max-width:900px;margin:0 auto;padding:1.75rem 1.2rem 3rem}
+    a.back{color:var(--accent);text-decoration:none;font-size:.9rem;font-weight:600}
+    h1{margin:.75rem 0 .35rem;font-size:1.55rem;letter-spacing:-.02em}
+    .sub{color:var(--muted);margin:0 0 1.25rem}
+    .panel{background:linear-gradient(160deg,#152033,#101828);border:1px solid var(--border);border-radius:14px;padding:1.15rem 1.2rem;margin-bottom:1rem}
+    .panel h2{margin:0 0 .75rem;font-size:1rem}
+    ul{margin:.25rem 0 0;padding-left:1.15rem;color:var(--muted)} li{margin:.35rem 0}
+    pre{background:#0b1220;border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem;overflow-x:auto;color:#cbd5e1;font-size:.85rem;line-height:1.45}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:.85rem}
+    .stat{background:#0e1524;border:1px solid var(--border);border-radius:12px;padding:.9rem}
+    .stat span{display:block;color:var(--dim);font-size:.75rem;margin-bottom:.2rem}
+    .stat strong{font-size:1.1rem}
+    .tag{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#93c5fd;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.25);padding:.15rem .5rem;border-radius:999px;margin-bottom:.5rem}
+    @media(max-width:700px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <a class="back" href="../index.html">← All days</a>
+    <div class="tag">NumPy · Pandas · Matplotlib</div>
+    <h1>Day 3 · Data Analysis</h1>
+    <p class="sub">Clean, analyze, and visualize facility hygiene inspection data.</p>
+    <div class="grid">
+      <div class="stat"><span>Dataset</span><strong>~1000 inspection records</strong></div>
+      <div class="stat"><span>Outputs</span><strong>Charts + insights</strong></div>
+    </div>
+    <div class="panel" style="margin-top:1rem">
+      <h2>Features</h2>
+      <ul>
+        <li>Missing values, duplicates, outlier handling</li>
+        <li>Descriptive statistics and group aggregations</li>
+        <li>Visualizations: bar, histogram, scatter, heatmap</li>
+        <li>Insights for Day 4 ML</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h2>Folder</h2>
+      <pre>day-03/
+├── dataset/
+├── data-cleaning/
+├── analysis/
+└── visualizations/</pre>
+    </div>
+    <div class="panel">
+      <h2>Run locally</h2>
+      <pre>cd day-03
+python data-cleaning/clean_data.py
+python analysis/analyze.py
+python visualizations/make_charts.py</pre>
+    </div>
+  </div>
+</body>
+</html>
