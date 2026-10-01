@@ -40,7 +40,8 @@ INTERN-WEEK/
 - Prefer Python 3.10+, Node 18+.
 
 ## Visuals
-https://vercel.com/shreya-a5e8/intern-week-01-zhfa
+
+https://intern-week-01-zhfa.vercel.app
 
 ## Final presentation
 
